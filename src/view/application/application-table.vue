@@ -12,7 +12,8 @@
         </Row>
         <Row>
             <Col span="24">
-            <PageTable :current="current" :columns="tableColumns" :data="tableData" :total="tableTotal" :pageSize="pageSize"></PageTable>
+            <PageTable :current="current" :columns="tableColumns" :data="tableData" :total="tableTotal" :pageSize="pageSize" 
+            @on-pageIndex-change="handlePageChange" @on-pageSize-change="handlePageSizeChange" ></PageTable>
             </Col>
         </Row>
 
@@ -50,6 +51,7 @@
 
 <script>
 import PageTable from '_c/pageTable'
+import { mapActions } from 'vuex'
 export default {
   components: {
     PageTable
@@ -85,73 +87,11 @@ export default {
           }
         },
         {
-          title: '画像内容',
-          key: 'portrayal',
-          render: (h, params) => {
-            return h('Poptip', {
-              props: {
-                trigger: 'hover',
-                title: params.row.portrayal.length + '个画像',
-                placement: 'bottom'
-              }
-            }, [
-              h('Tag', params.row.portrayal.length),
-              h('div', {
-                slot: 'content'
-              }, [
-                h('ul', this.tableData[params.index].portrayal.map(item => {
-                  return h('li', {
-                    style: {
-                      textAlign: 'center',
-                      padding: '4px'
-                    }
-                  }, item)
-                }))
-              ])
-            ])
-          }
-        },
-        {
-          title: '选定人群数',
-          key: 'people',
-          render: (h, params) => {
-            return h('Poptip', {
-              props: {
-                trigger: 'hover',
-                title: params.row.people.length + '个客群',
-                placement: 'bottom'
-              }
-            }, [
-              h('Tag', params.row.people.length),
-              h('div', {
-                slot: 'content'
-              }, [
-                h('ul', this.tableData[params.index].people.map(item => {
-                  return h('li', {
-                    style: {
-                      textAlign: 'center',
-                      padding: '4px'
-                    }
-                  }, item.n + '：' + item.c + '人')
-                }))
-              ])
-            ])
-          }
-
-        },
-        {
-          title: '取样时段',
-          key: 'time',
-          render: (h, params) => {
-            return h('div', '近' + params.row.time + '天')
-          }
-        },
-        {
           title: '创建时间',
-          key: 'createDate',
-          render: (h, params) => {
-            return h('div', this.formatDate(this.tableData[params.index].createDate))
-          }
+          key: 'createDate'
+          // render: (h, params) => {
+          //   return h('div', this.formatDate(this.tableData[params.index].createDate))
+          // }
         },
         {
           title: '操作',
@@ -208,9 +148,12 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'getApplicationList'
+    ]),
     init () {
       this.initTableData()
-      this.initTable()
+      
     },
     initTable () {
       // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
@@ -221,35 +164,40 @@ export default {
       }
     },
     initTableData () {
-      let data = []
-      for (let i = 0; i < 35; i++) {
-        var temp = Math.floor(Math.random() * 100 + 1)
-        data.push({
-          name: '应用' + temp,
-          desc: '应用' + temp + '描述',
-          status: Math.floor(Math.random() * 3 + 1),
-          portrayal: ['城市渗透', '人群迁移', '消费指数', '生活指数', '娱乐指数'],
-          people: [
-            {
-              n: '客群' + Math.floor(Math.random() * 100 + 1),
-              c: Math.floor(Math.random() * 1000000 + 100000)
-            },
-            {
-              n: '客群' + Math.floor(Math.random() * 100 + 1),
-              c: Math.floor(Math.random() * 1000000 + 100000)
-            },
-            {
-              n: '客群' + Math.floor(Math.random() * 100 + 1),
-              c: Math.floor(Math.random() * 1000000 + 100000)
-            }
-          ],
-          time: Math.floor(Math.random() * 7 + 1),
-          createDate: new Date()
+      // let data = []
+      // for (let i = 0; i < 35; i++) {
+      //   var temp = Math.floor(Math.random() * 100 + 1)
+      //   data.push({
+      //     name: '应用' + temp,
+      //     desc: '应用' + temp + '描述',
+      //     status: Math.floor(Math.random() * 3 + 1),
+      //     portrayal: ['城市渗透', '人群迁移', '消费指数', '生活指数', '娱乐指数'],
+      //     people: [
+      //       {
+      //         n: '客群' + Math.floor(Math.random() * 100 + 1),
+      //         c: Math.floor(Math.random() * 1000000 + 100000)
+      //       },
+      //       {
+      //         n: '客群' + Math.floor(Math.random() * 100 + 1),
+      //         c: Math.floor(Math.random() * 1000000 + 100000)
+      //       },
+      //       {
+      //         n: '客群' + Math.floor(Math.random() * 100 + 1),
+      //         c: Math.floor(Math.random() * 1000000 + 100000)
+      //       }
+      //     ],
+      //     time: Math.floor(Math.random() * 7 + 1),
+      //     createDate: new Date()
 
-        })
-      }
-      this.ajaxData = data
-      this.tableTotal = this.ajaxData.length
+      //   })
+      // }
+      this.getApplicationList().then(res=>{
+        this.ajaxData =res;
+        this.tableTotal = this.ajaxData.length
+
+        this.initTable()
+      })
+      
     },
     formatDate (date) {
       const y = date.getFullYear()
@@ -290,6 +238,15 @@ export default {
     },
     cancel () {
       this.$Message.info('Clicked cancel')
+    },
+    handlePageChange (index) {
+      var _start = (index - 1) * this.pageSize
+      var _end = index * this.pageSize
+      this.tableData = this.ajaxData.slice(_start, _end)
+    },
+    handlePageSizeChange (value) {
+      this.pageSize = value
+      this.tableData = this.ajaxData.slice(0, this.pageSize)
     }
 
   },

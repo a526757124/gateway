@@ -74,10 +74,10 @@ export default {
       this.$set(this, 'selection', selection)
     },
     handlePageChange (current) {
-      this.$emit('on-change', current)
+      this.$emit('on-pageIndex-change', current)
     },
     handlePageSizeChange (pageSize) {
-      this.$emit('on-pageSize-change', current)
+      this.$emit('on-pageSize-change', pageSize)
     }
   }
 }
