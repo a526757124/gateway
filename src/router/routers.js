@@ -31,8 +31,35 @@ export default [
         component: () => import('@/view/single-page/home')
       }
     ]
-  },
-  {
+  }, {
+    path: '/application',
+    name: 'application',
+    meta: {
+      icon: 'social-buffer',
+      title: '应用管理'
+    },
+    component: Main,
+    children: [
+      {
+        path: 'index',
+        name: 'application-table',
+        meta: {
+          icon: 'social-buffer',
+          title: '应用管理'
+        },
+        component: () => import('@/view/application/application-table.vue')
+      },
+      {
+        path: 'edit',
+        name: 'application-form',
+        meta: {
+          icon: 'social-buffer',
+          title: '应用管理添加'
+        },
+        component: () => import('@/view/application/application-form.vue')
+      }
+    ]
+  }, {
     path: '/components',
     name: 'components',
     meta: {
