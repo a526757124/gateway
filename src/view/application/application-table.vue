@@ -18,7 +18,7 @@
         </Row>
 
         <Modal
-            v-model="modal1"
+            v-model="applicationEditModal"
             title="应用详细"
             @on-ok="ok"
             @on-cancel="cancel">
@@ -58,25 +58,25 @@ export default {
   },
   data () {
     return {
-      modal1: false,
+      applicationEditModal: false,
       tableColumns: [
         {
           title: '应用名称',
-          key: 'name',
+          key: 'AppName',
           editable: true
         },
         {
           title: '应用描述',
-          key: 'desc',
+          key: 'AppDesc',
           editable: true
         },
         {
           title: '状态',
-          key: 'status',
+          key: 'Status',
           render: (h, params) => {
             const row = params.row
             const color = row.status === 1 ? 'blue' : row.status === 2 ? 'green' : 'red'
-            const text = row.status === 1 ? '构建中' : row.status === 2 ? '构建完成' : '构建失败'
+            const text = row.status === 1 ? '构建中' : row.status === 2 ? '开启' : '关闭'
 
             return h('Tag', {
               props: {
@@ -88,7 +88,7 @@ export default {
         },
         {
           title: '创建时间',
-          key: 'createDate'
+          key: 'CreateDate'
           // render: (h, params) => {
           //   return h('div', this.formatDate(this.tableData[params.index].createDate))
           // }
@@ -164,39 +164,32 @@ export default {
       }
     },
     initTableData () {
-      // let data = []
-      // for (let i = 0; i < 35; i++) {
-      //   var temp = Math.floor(Math.random() * 100 + 1)
-      //   data.push({
-      //     name: '应用' + temp,
-      //     desc: '应用' + temp + '描述',
-      //     status: Math.floor(Math.random() * 3 + 1),
-      //     portrayal: ['城市渗透', '人群迁移', '消费指数', '生活指数', '娱乐指数'],
-      //     people: [
-      //       {
-      //         n: '客群' + Math.floor(Math.random() * 100 + 1),
-      //         c: Math.floor(Math.random() * 1000000 + 100000)
-      //       },
-      //       {
-      //         n: '客群' + Math.floor(Math.random() * 100 + 1),
-      //         c: Math.floor(Math.random() * 1000000 + 100000)
-      //       },
-      //       {
-      //         n: '客群' + Math.floor(Math.random() * 100 + 1),
-      //         c: Math.floor(Math.random() * 1000000 + 100000)
-      //       }
-      //     ],
-      //     time: Math.floor(Math.random() * 7 + 1),
-      //     createDate: new Date()
+      let data = []
+      for (let i = 0; i < 35; i++) {
+        var temp = Math.floor(Math.random() * 100 + 1)
+        var mydate=new Date();
+        data.push({
+          AppID:i.toString(),
+          AppName: '应用' + temp,
+          AppDesc: '应用' + temp + '描述',
+          AppKey:mydate.getDay()+ mydate.getHours()+ mydate.getMinutes()+mydate.getSeconds()+mydate.getMilliseconds(),
+          AppUrl:'http://1.api.com',
+          AppIPList:'192.168.1.100\n192.168.1.101',
+          DevUser:'张三',
+          ProductUser:'李四',
+          Status: Math.floor(Math.random() * 3 + 1),
+          CreateDate: mydate
+        })
+      }
+      this.ajaxData =res;
+      this.tableTotal = this.ajaxData.length
+      this.initTable()
+      // this.getApplicationList().then(res=>{
+      //   this.ajaxData =res;
+      //   this.tableTotal = this.ajaxData.length
 
-      //   })
-      // }
-      this.getApplicationList().then(res=>{
-        this.ajaxData =res;
-        this.tableTotal = this.ajaxData.length
-
-        this.initTable()
-      })
+      //   this.initTable()
+      // })
       
     },
     formatDate (date) {
