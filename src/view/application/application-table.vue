@@ -25,24 +25,41 @@
             <p>
                 <Row>
                     <Col span="12">应用名称:</Col>
-                    <Col span="12"><Input v-model="application.name" placeholder="应用名称..." ></Input></Col>
+                    <Col span="12"><Input v-model="application.AppName" placeholder="应用名称..." ></Input></Col>
+                </Row>
+                <Row>
+                    <Col span="12">应用简介	:</Col>
+                    <Col span="12">
+                        <Input v-model="application.AppDesc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="应用描述..."></Input>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span="12">应用地址:</Col>
+                    <Col span="12"><Input v-model="application.AppUrl"  placeholder="应用地址..." ></Input></Col>
+                </Row>
+                <Row>
+                    <Col span="12">服务器IP:</Col>
+                    <Col span="12"><Input v-model="application.AppIPList" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="服务器IP..." ></Input></Col>
+                </Row>
+                <Row>
+                    <Col span="12">开发人员:</Col>
+                    <Col span="12"><Input v-model="application.DevUser" placeholder="开发人员..." ></Input></Col>
+                </Row>
+                <Row>
+                    <Col span="12">产品人员:</Col>
+                    <Col span="12"><Input v-model="application.ProductUser" placeholder="产品人员..." ></Input></Col>
                 </Row>
                 <Row>
                     <Col span="12">状态:</Col>
                     <Col span="12">
 
-                            <i-switch size="large" v-model="application.status">
+                            <i-switch size="large" v-model="application.Status">
                                 <span slot="open">开启</span>
                                 <span slot="close">关闭</span>
                             </i-switch>
                     </Col>
                 </Row>
-                <Row>
-                    <Col span="12">应用描述	:</Col>
-                    <Col span="12">
-                        <Input v-model="application.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="应用描述..."></Input>
-                    </Col>
-                </Row>
+                
             </p>
         </Modal>
     </div>
@@ -141,9 +158,16 @@ export default {
         name: ''
       },
       application: {
-        name: '',
-        desc: '',
-        status: 0
+        AppID:'',//
+        AppName:'',//应用名称
+        AppDesc:'',//应用简介
+        AppKey:'',//appkey
+        AppUrl:'',//应用地址
+        AppIPList:'',//服务器IP
+        DevUser:'',//开发人员
+        ProductUser:'',//产品人员
+        CreateDate:'',
+        Status:0//状态  开启 关闭 构建中
       }
     }
   },
@@ -181,7 +205,7 @@ export default {
           CreateDate: mydate
         })
       }
-      this.ajaxData =res;
+      this.ajaxData =data;
       this.tableTotal = this.ajaxData.length
       this.initTable()
       // this.getApplicationList().then(res=>{
@@ -207,24 +231,36 @@ export default {
 
     },
     handleAdd () {
-      debugger
       this.open()
     },
     open (row) {
       if (row) {
         this.application = {
-          name: row.name,
-          desc: row.desc,
-          status: true
+          AppID: row.AppID,
+          AppName: row.AppName,
+          AppDesc: row.AppDesc,
+          AppKey: row.AppKey,
+          AppUrl: row.AppUrl,
+          AppIPList: row.AppIPList,
+          DevUser: row.DevUser,
+          ProductUser: row.ProductUser,
+          Status: row.Status==0,
         }
       } else {
         this.application = {
-          name: '',
-          desc: '',
-          status: ''
+            AppID:'',//
+            AppName:'',//应用名称
+            AppDesc:'',//应用简介
+            AppKey:'',//appkey
+            AppUrl:'',//应用地址
+            AppIPList:'',//服务器IP
+            DevUser:'',//开发人员
+            ProductUser:'',//产品人员
+            CreateDate:'',
+            Status:0//状态  开启 关闭 构建中
         }
       }
-      this.modal1 = true
+      this.applicationEditModal = true
     },
     ok () {
       this.$Message.info('Clicked ok')
