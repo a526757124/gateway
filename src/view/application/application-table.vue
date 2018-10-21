@@ -1,239 +1,252 @@
 <template>
-    <div style="margin: 5px">
-        <Row style="margin:10px 10px;">
-            <Col span="16">
-                <Input v-model="search.name" placeholder="请输入应用名搜搜..." style="width: 200px" />
-                <span @click="handleSearch" style="margin: 0 10px;"><Button type="primary" icon="search">搜索</Button></span>
-                <Button @click="handleCancel" type="ghost" >取消</Button>
-            </Col>
-            <Col span="7" style="text-align:right;" >
-                <Button @click="handleAdd" type="primary">新增应用</Button>
-            </Col>
-        </Row>
-        <Row>
-            <Col span="24">
-            <PageTable :current="current" :columns="tableColumns" :data="tableData" :total="tableTotal" :pageSize="pageSize" 
-            @on-pageIndex-change="handlePageChange" @on-pageSize-change="handlePageSizeChange" ></PageTable>
-            </Col>
-        </Row>
-
-        <Modal
-            v-model="applicationEditModal"
-            title="应用详细"
-            @on-ok="ok"
-            @on-cancel="cancel">
-            <p>
-                <Row>
-                    <Col span="12">应用名称:</Col>
-                    <Col span="12"><Input v-model="application.AppName" placeholder="应用名称..." ></Input></Col>
-                </Row>
-                <Row>
-                    <Col span="12">应用简介	:</Col>
-                    <Col span="12">
-                        <Input v-model="application.AppDesc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="应用描述..."></Input>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span="12">应用地址:</Col>
-                    <Col span="12"><Input v-model="application.AppUrl"  placeholder="应用地址..." ></Input></Col>
-                </Row>
-                <Row>
-                    <Col span="12">服务器IP:</Col>
-                    <Col span="12"><Input v-model="application.AppIPList" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="服务器IP..." ></Input></Col>
-                </Row>
-                <Row>
-                    <Col span="12">开发人员:</Col>
-                    <Col span="12"><Input v-model="application.DevUser" placeholder="开发人员..." ></Input></Col>
-                </Row>
-                <Row>
-                    <Col span="12">产品人员:</Col>
-                    <Col span="12"><Input v-model="application.ProductUser" placeholder="产品人员..." ></Input></Col>
-                </Row>
-                <Row>
-                    <Col span="12">状态:</Col>
-                    <Col span="12">
-
-                            <i-switch size="large" v-model="application.Status">
-                                <span slot="open">开启</span>
-                                <span slot="close">关闭</span>
-                            </i-switch>
-                    </Col>
-                </Row>
-                
-            </p>
-        </Modal>
-    </div>
-
+  <div>
+    <Card>
+      <tables ref="tables" editable searchable btnAdd page  v-model="tableData" 
+      :columns="columns" 
+      :totalData="totalData"
+      :currentIndex="pageIndex"
+      :pageSize="pageSize"
+      @on-add="handleAdd"
+      @on-change="handlePageChange" 
+      @on-page-size-change='handlePageSizeChange'
+      @on-delete="handleDelete"/>
+    </Card>
+    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50">
+           <Form ref="application" :model="application" :rules="applicationRuleValidate" :label-width="80">
+                <FormItem label="应用名称" prop="AppName">
+                    <Input type="text" v-model="application.AppName" placeholder="应用名称..."></Input>
+                </FormItem>
+                <FormItem label="应用描述" prop="AppDesc">
+                    <Input type="textarea" :rows="4"  v-model="application.AppDesc" placeholder="应用描述..."></Input>
+                </FormItem>
+                <FormItem label="应用地址" prop="AppUrl">
+                    <Input type="text" v-model="application.AppUrl" placeholder="应用地址..."></Input>
+                </FormItem>
+                <FormItem label="服务器IP" prop="AppIPList">
+                    <Input v-model="application.AppIPList" type="textarea" :rows="4" placeholder="服务器IP..."></Input>
+                </FormItem>
+                <FormItem label="开发人员" prop="DevUser">
+                    <Input v-model="application.DevUser" placeholder="开发人员..."></Input>
+                </FormItem>
+                <FormItem label="产品人员" prop="ProductUser">
+                    <Input v-model="application.ProductUser" placeholder="产品人员..."></Input>
+                </FormItem>
+                <FormItem label="开通状态" prop="Status"> 
+                    <Select v-model="application.Status">
+                        <Option v-for="item in statusList" :value="item.value" :key="item.value">{{item.label}}</Option>
+                    </Select>
+                </FormItem>
+           </Form>
+           <div slot="footer">
+                <Button type="primary" @click="handleSubmit('application')">提交</Button>
+                <!-- <Button @click="handleReset('application')" style="margin-left: 8px">重置</Button> -->
+                <Button @click="handleCancel()" style="margin-left: 8px">关闭</Button>
+            </div>
+    </Modal>
+  </div>
 </template>
 
 <script>
-import PageTable from '_c/pageTable'
-import { mapActions } from 'vuex'
+import Tables from '_c/tables'
+import { getList, add,update,del } from '@/api/application'
 export default {
+  name: 'applicaton-table',
   components: {
-    PageTable
+    Tables
   },
   data () {
+    const validatePass = (rule, value, callback) => {
+        if (value === '') {
+            callback(new Error('Please enter your password'));
+        } else {
+            if (this.formCustom.passwdCheck !== '') {
+                // 对第二个密码框单独验证
+                this.$refs.formCustom.validateField('passwdCheck');
+            }
+            callback();
+        }
+    };
+    const validatePassCheck = (rule, value, callback) => {
+        if (value === '') {
+            callback(new Error('Please enter your password again'));
+        } else if (value !== this.formCustom.passwd) {
+            callback(new Error('The two input passwords do not match!'));
+        } else {
+            callback();
+        }
+    };
+    const validateAge = (rule, value, callback) => {
+        if (!value) {
+            return callback(new Error('Age cannot be empty'));
+        }
+        // 模拟异步验证效果
+        setTimeout(() => {
+            if (!Number.isInteger(value)) {
+                callback(new Error('Please enter a numeric value'));
+            } else {
+                if (value < 18) {
+                    callback(new Error('Must be over 18 years of age'));
+                } else {
+                    callback();
+                }
+            }
+        }, 1000);
+    };
     return {
-      applicationEditModal: false,
-      tableColumns: [
-        {
-          title: '应用名称',
-          key: 'AppName',
-          editable: true
-        },
-        {
-          title: '应用描述',
-          key: 'AppDesc',
-          editable: true
-        },
-        {
-          title: '状态',
-          key: 'Status',
-          render: (h, params) => {
+      columns: [
+        {title: '应用名称', key: 'AppName', sortable: true,isSearchable:true},
+        {title: '应用描述', key: 'AppDesc',isSearchable:true},
+        {title: '状态',key: 'Status',render: (h, params) => {
             const row = params.row
-            const color = row.status === 1 ? 'blue' : row.status === 2 ? 'green' : 'red'
-            const text = row.status === 1 ? '构建中' : row.status === 2 ? '开启' : '关闭'
-
+            const color = row.Status === 1 ? 'blue' : row.Status === 2 ? 'green' : 'red'
+            const text = row.Status === 1 ? '开启' : row.Status === 2 ? '构建中' : '关闭'
             return h('Tag', {
               props: {
                 type: 'dot',
                 color: color
-              }
+              },
+              style: {
+                    padding: '6px 5px'
+                },
             }, text)
           }
         },
-        {
-          title: '创建时间',
-          key: 'CreateDate'
-          // render: (h, params) => {
-          //   return h('div', this.formatDate(this.tableData[params.index].createDate))
-          // }
-        },
+        {title: '创建时间', key: 'CreateDate'},
         {
           title: '操作',
-          align: 'center',
-          // width: 190,
-          key: 'action',
-          render: (h, currentRow) => {
-            return h('div', [
-              h('Button', {
-                props: {
-                  type: 'primary',
-                  loading: false
-                },
-                style: {
-                  margin: '0 5px'
-                },
-                on: {
-                  'click': (data) => {
-                    this.open(this.tableData[currentRow.index])
-                  }
-                }
-              }, '编辑'),
-              h('Button', {
-                props: {
-                  type: 'success',
-                  loading: false
-                },
-                style: {
-                  margin: '0 5px'
-                },
-                on: {
-                  'click': (data) => {
-
-                  }
-                }
-              }, '删除')
-            ])
-          }
+          //align: 'center',
+          key: 'handle',
+          //options: ['delete'],
+          button: [
+            (h, params, vm) => {
+              return h('div', [
+                        h('Button', {
+                            props: {
+                                type: 'primary',
+                                loading: false
+                            },
+                            style: {
+                                margin: '0 5px'
+                            },
+                            on: {
+                                'click': (data) => {
+                                    //var i=params;
+                                    this.handleEdit(this.tableData[params.index])
+                                }
+                            }
+                        }, '编辑'),
+                        h('Button', {
+                            props: {
+                                type: 'success',
+                                loading: false
+                            },
+                            style: {
+                                margin: '0 5px'
+                            },
+                            on: {
+                                'click': (data) => {
+                                    this.handleDelete(this.tableData[params.index])
+                                }
+                            }
+                        }, '删除')
+                    ])
+            }
+          ]
         }
       ],
-      ajaxData: [],
       tableData: [],
-      tableTotal: 0,
-      pageSize: 10,
-      current: 1,
-      search: {
-        name: ''
+      createModalShow: false,
+      modalTitle: "添加应用",
+      application:{
+          AppID:0,//
+          AppName:'',//应用名称
+          AppDesc:'',//应用简介
+          AppKey:'',//appkey
+          AppUrl:'',//应用地址
+          AppIPList:'',//服务器IP
+          DevUser:'',//开发人员
+          ProductUser:'',//产品人员
+          Status:0//状态  开启 关闭 构建中
       },
-      application: {
-        AppID:'',//
-        AppName:'',//应用名称
-        AppDesc:'',//应用简介
-        AppKey:'',//appkey
-        AppUrl:'',//应用地址
-        AppIPList:'',//服务器IP
-        DevUser:'',//开发人员
-        ProductUser:'',//产品人员
-        CreateDate:'',
-        Status:0//状态  开启 关闭 构建中
-      }
+      statusList:[{value:1,label:"开启"},{value:2,label:"构建中"},{value:0,label:"关闭"}],
+      applicationRuleValidate: {
+          AppName: [
+              { required: true, message: '应用名称不能为空！', trigger: 'blur' }
+          ],
+          AppDesc: [
+              { required: true, message: '请输入应用简介！', trigger: 'blur' },
+              { type: 'string', min: 20, message: '应用简介不能小于20字！', trigger: 'blur' }
+          ],
+          AppUrl: [
+              { required: true, type: 'url', min: 1, message: '请输入正确的url应用地址', trigger: 'change' }
+          ]  
+      },
+      totalData:0,
+      pageIndex:1,
+      pageSize:10,
+      
     }
   },
   methods: {
-    ...mapActions([
-      'getApplicationList'
-    ]),
-    init () {
-      this.initTableData()
-      
-    },
-    initTable () {
-      // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
-      if (this.tableTotal < this.pageSize) {
-        this.tableData = this.ajaxData
-      } else {
-        this.tableData = this.ajaxData.slice(0, this.pageSize)
-      }
-    },
-    initTableData () {
-      let data = []
-      for (let i = 0; i < 35; i++) {
-        var temp = Math.floor(Math.random() * 100 + 1)
-        var mydate=new Date();
-        data.push({
-          AppID:i.toString(),
-          AppName: '应用' + temp,
-          AppDesc: '应用' + temp + '描述',
-          AppKey:mydate.getDay()+ mydate.getHours()+ mydate.getMinutes()+mydate.getSeconds()+mydate.getMilliseconds(),
-          AppUrl:'http://1.api.com',
-          AppIPList:'192.168.1.100\n192.168.1.101',
-          DevUser:'张三',
-          ProductUser:'李四',
-          Status: Math.floor(Math.random() * 3 + 1),
-          CreateDate: mydate
+    handleSubmit (name) {
+        var me=this;
+        var data=this.application;
+        this.$refs[name].validate((valid) => {
+            if (valid) {
+                if(data.AppID>0){
+                    update(data).then(res=>{
+                        me.$Message.success('Success!');
+                        me.loadData();
+                        this.createModalShow = false;
+                    })
+                }else{
+                    add(data).then(res=>{
+                        me.$Message.success('Success!');
+                        me.loadData();
+                        this.createModalShow = false;
+                    })
+                }
+
+            } else {
+                this.$Message.error('Fail!');
+            }
         })
-      }
-      this.ajaxData =data;
-      this.tableTotal = this.ajaxData.length
-      this.initTable()
-      // this.getApplicationList().then(res=>{
-      //   this.ajaxData =res;
-      //   this.tableTotal = this.ajaxData.length
-
-      //   this.initTable()
-      // })
-      
     },
-    formatDate (date) {
-      const y = date.getFullYear()
-      let m = date.getMonth() + 1
-      m = m < 10 ? '0' + m : m
-      let d = date.getDate()
-      d = d < 10 ? ('0' + d) : d
-      return y + '-' + m + '-' + d
-    },
-    handleSearch () {
-
+    handleReset (name) {
+        this.$refs[name].resetFields();
     },
     handleCancel () {
-
+        this.createModalShow=false;
     },
-    handleAdd () {
-      this.open()
+    init(){
+      this.loadData();
     },
-    open (row) {
+    loadData(){
+      var query={
+        pageIndex: this.pageIndex,
+        pageSize: this.pageSize
+      }
+      getList(query).then(res => {
+          if(res.data.totalCount==0){
+            this.tableData=[];
+            this.totalCount=0;
+          }else{
+            this.tableData = res.data.pageData;
+            this.totalData=res.data.totalCount;
+          }
+      })
+    },
+    handleAdd(){
+        this.setApp(null);
+        this.createModalShow = true;
+        this.modalTitle="添加应用";
+    },
+    handleEdit(row){
+        this.setApp(row);
+        this.createModalShow = true;
+        this.modalTitle="编辑应用";
+    },
+    setApp (row) {
       if (row) {
         this.application = {
           AppID: row.AppID,
@@ -244,11 +257,11 @@ export default {
           AppIPList: row.AppIPList,
           DevUser: row.DevUser,
           ProductUser: row.ProductUser,
-          Status: row.Status==0,
+          Status: row.Status,
         }
       } else {
         this.application = {
-            AppID:'',//
+            AppID:0,//
             AppName:'',//应用名称
             AppDesc:'',//应用简介
             AppKey:'',//appkey
@@ -260,27 +273,30 @@ export default {
             Status:0//状态  开启 关闭 构建中
         }
       }
-      this.applicationEditModal = true
     },
-    ok () {
-      this.$Message.info('Clicked ok')
+    handleDelete (row) {
+        var me=this;
+        me.setApp(row)
+        del(me.application).then(res=>{
+            me.$Message.success('Success!');
+            me.loadData();
+        })
     },
-    cancel () {
-      this.$Message.info('Clicked cancel')
+    handlePageChange(index){
+      this.pageIndex=index;
+      this.loadData();
     },
-    handlePageChange (index) {
-      var _start = (index - 1) * this.pageSize
-      var _end = index * this.pageSize
-      this.tableData = this.ajaxData.slice(_start, _end)
-    },
-    handlePageSizeChange (value) {
-      this.pageSize = value
-      this.tableData = this.ajaxData.slice(0, this.pageSize)
+    handlePageSizeChange(size){
+      this.pageSize=size;
+      this.loadData();
     }
-
   },
   mounted () {
-    this.init()
+    this.init();
   }
 }
 </script>
+
+<style>
+
+</style>
