@@ -5,9 +5,9 @@ export default {
   state: {
     userName: '',
     userId: '',
-    avatorImgPath: '',
+    avatorImgPath: 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4',
     token: getToken(),
-    access: ''
+    access: ['admin']
   },
   mutations: {
     setAvator (state, avatorPath) {
@@ -35,10 +35,11 @@ export default {
         login({
           userName,
           password
-        }).then(res => {
-          const data = res.data
-          commit('setToken', data.token)
-          resolve()
+        }).then(data => {
+          if (data) {
+            commit('setToken', data.Token)
+            resolve()
+          }
         }).catch(err => {
           reject(err)
         })
@@ -62,14 +63,16 @@ export default {
     },
     // 获取用户相关信息
     getUserInfo ({ state, commit }) {
+      let token = state.token
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(res => {
-          const data = res.data
-          commit('setAvator', data.avator)
-          commit('setUserName', data.user_name)
-          commit('setUserId', data.user_id)
-          commit('setAccess', data.access)
-          resolve(data)
+        getUserInfo(token).then(data => {
+          if (data) {
+            // commit('setAvator', data.avator)
+            commit('setUserName', data.NickName)
+            commit('setUserId', data.ID)
+            // commit('setAccess', data.access)
+            resolve(data)
+          }
         }).catch(err => {
           reject(err)
         })

@@ -108,6 +108,28 @@ export default [
     ]
   },
   {
+    path: '/user',
+    name: 'user',
+    meta: {
+      showAlways:true,
+      icon: 'logo-buffer',
+      title: '用户管理'
+    },
+    component: Main,
+    children: [
+      {
+        path: 'user-table',
+        name: 'user-table',
+        meta: {
+          
+          icon: 'logo-buffer',
+          title: '用户列表'
+        },
+        component: () => import('@/view/user/user-table.vue')
+      }
+    ]
+  },
+  {
     path: '/api',
     name: 'api',
     meta: {

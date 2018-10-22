@@ -23,7 +23,7 @@ class httpRequest {
     // 添加请求拦截器
     instance.interceptors.request.use(config => {
       if (!config.url.includes('/users')) {
-        //config.headers['x-access-token'] = Cookies.get(TOKEN_KEY)
+        // config.headers['x-access-token'] = Cookies.get(TOKEN_KEY)
       }
       // Spin.show()
       // 在发送请求之前做些什么
@@ -51,9 +51,12 @@ class httpRequest {
         } else {
           if (data.msg) Message.error(data.msg)
         }
-        return false
-      }     
-      return data
+        // 返回空
+        return null
+      } else {
+        // 返回数据
+        return data.data
+      }
     }, (error) => {
       Message.error('服务内部错误')
       // 对响应错误做点什么
