@@ -12,34 +12,34 @@
       @on-delete="handleDelete"/>
     </Card>
     <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50">
-           <Form ref="application" :model="application" :rules="applicationRuleValidate" :label-width="80">
-                <FormItem label="应用名称" prop="AppName">
-                    <Input type="text" v-model="application.AppName" placeholder="应用名称..."></Input>
+           <Form ref="appInfo" :model="appInfo" :rules="appInfoRuleValidate" :label-width="80">
+                <FormItem label="应用名称" prop="Name">
+                    <Input type="text" v-model="appInfo.Name" placeholder="应用名称..."></Input>
                 </FormItem>
-                <FormItem label="应用描述" prop="AppDesc">
-                    <Input type="textarea" :rows="4"  v-model="application.AppDesc" placeholder="应用描述..."></Input>
+                <FormItem label="应用描述" prop="Desc">
+                    <Input type="textarea" :rows="4"  v-model="appInfo.Desc" placeholder="应用描述..."></Input>
                 </FormItem>
-                <FormItem label="应用地址" prop="AppUrl">
-                    <Input type="text" v-model="application.AppUrl" placeholder="应用地址..."></Input>
+                <FormItem label="应用地址" prop="Url">
+                    <Input type="text" v-model="appInfo.Url" placeholder="应用地址..."></Input>
                 </FormItem>
-                <FormItem label="服务器IP" prop="AppIPList">
-                    <Input v-model="application.AppIPList" type="textarea" :rows="4" placeholder="服务器IP..."></Input>
+                <FormItem label="服务器IP" prop="IPList">
+                    <Input v-model="appInfo.IPList" type="textarea" :rows="4" placeholder="服务器IP..."></Input>
                 </FormItem>
                 <FormItem label="开发人员" prop="DevUser">
-                    <Input v-model="application.DevUser" placeholder="开发人员..."></Input>
+                    <Input v-model="appInfo.DevUser" placeholder="开发人员..."></Input>
                 </FormItem>
                 <FormItem label="产品人员" prop="ProductUser">
-                    <Input v-model="application.ProductUser" placeholder="产品人员..."></Input>
+                    <Input v-model="appInfo.ProductUser" placeholder="产品人员..."></Input>
                 </FormItem>
                 <FormItem label="开通状态" prop="Status"> 
-                    <Select v-model="application.Status">
+                    <Select v-model="appInfo.Status">
                         <Option v-for="item in statusList" :value="item.value" :key="item.value">{{item.label}}</Option>
                     </Select>
                 </FormItem>
            </Form>
            <div slot="footer">
-                <Button type="primary" @click="handleSubmit('application')">提交</Button>
-                <!-- <Button @click="handleReset('application')" style="margin-left: 8px">重置</Button> -->
+                <Button type="primary" @click="handleSubmit('appInfo')">提交</Button>
+                <!-- <Button @click="handleReset('appInfo')" style="margin-left: 8px">重置</Button> -->
                 <Button @click="handleCancel()" style="margin-left: 8px">关闭</Button>
             </div>
     </Modal>
@@ -48,7 +48,7 @@
 
 <script>
 import Tables from '_c/tables'
-import { getList, add,update,del } from '@/api/application'
+import { getList, add,update,del } from '@/api/appInfo'
 export default {
   name: 'applicaton-table',
   components: {
@@ -94,20 +94,20 @@ export default {
     };
     return {
       columns: [
-        {title: '应用名称', key: 'AppName', sortable: true,isSearchable:true},
-        {title: '应用描述', key: 'AppDesc',isSearchable:true},
+        {title: '应用名称', key: 'Name', sortable: true,isSearchable:true},
+        {title: '应用描述', key: 'Desc',isSearchable:true},
         {title: '状态',key: 'Status',render: (h, params) => {
             const row = params.row
-            const color = row.Status === 1 ? 'blue' : row.Status === 2 ? 'green' : 'red'
-            const text = row.Status === 1 ? '开启' : row.Status === 2 ? '构建中' : '关闭'
-            return h('Tag', {
+            const color = row.Status === 1 ? 'blue' : row.Status === 0 ? 'green' : 'red'
+            const text = row.Status === 1 ? '有效' : row.Status === 0 ? '初始化' : '无效'
+            return h('span', {
               props: {
-                type: 'dot',
-                color: color
+                
               },
               style: {
-                    padding: '6px 5px'
-                },
+                color: color,
+                
+              }
             }, text)
           }
         },
@@ -157,27 +157,29 @@ export default {
       tableData: [],
       createModalShow: false,
       modalTitle: "添加应用",
-      application:{
-          AppID:0,//
-          AppName:'',//应用名称
-          AppDesc:'',//应用简介
-          AppKey:'',//appkey
-          AppUrl:'',//应用地址
-          AppIPList:'',//服务器IP
+      appInfo:{
+          ID:0,//
+          Name:'',//应用名称
+          Desc:'',//应用简介
+          Key:'',//appkey
+          Url:'',//应用地址
+          IPList:'',//服务器IP
           DevUser:'',//开发人员
           ProductUser:'',//产品人员
-          Status:0//状态  开启 关闭 构建中
+          CreateTime:0,
+          CreateUser:0,
+          Status:0//状态
       },
-      statusList:[{value:1,label:"开启"},{value:2,label:"构建中"},{value:0,label:"关闭"}],
-      applicationRuleValidate: {
-          AppName: [
+      statusList: [{value: 0, label: '初始化'}, {value: 1, label: '有效'}, {value: -1, label: '无效'}],
+      appInfoRuleValidate: {
+          Name: [
               { required: true, message: '应用名称不能为空！', trigger: 'blur' }
           ],
-          AppDesc: [
+          Desc: [
               { required: true, message: '请输入应用简介！', trigger: 'blur' },
               { type: 'string', min: 20, message: '应用简介不能小于20字！', trigger: 'blur' }
           ],
-          AppUrl: [
+          Url: [
               { required: true, type: 'url', min: 1, message: '请输入正确的url应用地址', trigger: 'change' }
           ]  
       },
@@ -190,10 +192,10 @@ export default {
   methods: {
     handleSubmit (name) {
         var me=this;
-        var data=this.application;
+        var data=this.appInfo;
         this.$refs[name].validate((valid) => {
             if (valid) {
-                if(data.AppID>0){
+                if(data.ID>0){
                     update(data).then(res=>{
                         me.$Message.success('Success!');
                         me.loadData();
@@ -226,13 +228,13 @@ export default {
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
       }
-      getList(query).then(res => {
-          if(res.data.totalCount==0){
+      getList(query).then(data => {
+          if(data.totalCount==0){
             this.tableData=[];
             this.totalCount=0;
           }else{
-            this.tableData = res.data.pageData;
-            this.totalData=res.data.totalCount;
+            this.tableData = data.pageData;
+            this.totalData=data.totalCount;
           }
       })
     },
@@ -248,37 +250,37 @@ export default {
     },
     setApp (row) {
       if (row) {
-        this.application = {
-          AppID: row.AppID,
-          AppName: row.AppName,
-          AppDesc: row.AppDesc,
-          AppKey: row.AppKey,
-          AppUrl: row.AppUrl,
-          AppIPList: row.AppIPList,
+        this.appInfo = {
+          ID: row.ID,
+          Name: row.Name,
+          Desc: row.Desc,
+          Key: row.Key,
+          Url: row.Url,
+          IPList: row.IPList,
           DevUser: row.DevUser,
           ProductUser: row.ProductUser,
           Status: row.Status,
         }
       } else {
-        this.application = {
-            AppID:0,//
-            AppName:'',//应用名称
-            AppDesc:'',//应用简介
-            AppKey:'',//appkey
-            AppUrl:'',//应用地址
-            AppIPList:'',//服务器IP
+        this.appInfo = {
+            ID:0,//
+            Name:'',//应用名称
+            Desc:'',//应用简介
+            Key:'',//appkey
+            Url:'',//应用地址
+            IPList:'',//服务器IP
             DevUser:'',//开发人员
             ProductUser:'',//产品人员
             CreateDate:'',
-            Status:0//状态  开启 关闭 构建中
+            Status:0//状态 
         }
       }
     },
     handleDelete (row) {
         var me=this;
         me.setApp(row)
-        del(me.application).then(res=>{
-            me.$Message.success('Success!');
+        del(me.appInfo).then(res=>{
+            me.$Message.success('删除成功!');
             me.loadData();
         })
     },
