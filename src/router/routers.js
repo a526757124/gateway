@@ -130,8 +130,8 @@ export default [
     ]
   },
   {
-    path: '/api',
-    name: 'api',
+    path: '/syssetting',
+    name: 'syssetting',
     meta: {
       showAlways:true,
       icon: 'logo-buffer',
@@ -140,31 +140,22 @@ export default [
     component: Main,
     children: [
       {
-        path: '/api-group',
-        name: 'api-group',
+        path: '/audit-log',
+        name: 'audit-log',
         meta: {
           icon: 'logo-buffer',
-          title: '操作日志'
+          title: '审计日志'
         },
-        component: () => import('@/view/api/api-table.vue')
+        component: () => import('@/view/audit-log/audit-log-table.vue')
       },
       {
-        path: '/api-table',
-        name: 'api-table',
-        meta: {
-          icon: 'logo-buffer',
-          title: '更新日志'
-        },
-        component: () => import('@/view/api/api-table.vue')
-      },
-      {
-        path: '/api-table',
-        name: 'api-table',
+        path: '/base-settting',
+        name: 'base-setting',
         meta: {
           icon: 'logo-buffer',
           title: '基础设置'
         },
-        component: () => import('@/view/api/api-table.vue')
+        component: () => import('@/view/base-setting/base-setting-from.vue')
       }
     ]
   },
