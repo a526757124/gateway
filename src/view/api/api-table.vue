@@ -198,6 +198,7 @@ export default {
       })
     },
     handleAdd () {
+      debugger
       this.open(null)
       this.createModalShow = true
       this.modalTitle = '添加API基本信息'
@@ -208,6 +209,7 @@ export default {
       this.modalTitle = '编辑API基本信息'
     },
     open (row) {
+      debugger
       me = this
       if (row) {
         var id = row.ID
