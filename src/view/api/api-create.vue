@@ -14,127 +14,171 @@
     <Row>
         <Col :xs="24">
         <Card title="基本信息" v-show="stepIndex===0">
-            <Form ref="apiInfo" :model="apiInfo" :rules="ruleCustom" :label-width="400">
+            <Form ref="apiInfo" class="steps" :model="apiInfo" :rules="ruleCustom" :label-width="400">
+              <Form-item label="API名称" prop="Name" >
+                  <Row>
+                      <Col span="12">
+                      <Input v-model="apiInfo.Name" placeholder="API名称..."></Input>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="API简介" prop="Desc">
+                  <Row>
+                      <Col span="12">
+                      <Input type="textarea" v-model="apiInfo.Desc" placeholder="API简介..."></Input>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="所属应用" prop="BelongAppID">
+                  <Row>
+                      <Col span="12">
+                      <Select v-model="apiInfo.BelongAppID"
+                      multiple
+                      filterable
+                      remote
+                      :remote-method="groupRemoteLoad"
+                      :loading="groupLoading">
+                          <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                      </Select>
+                      </Col>
+                      <Col>
 
-            <Form-item label="API名称" prop="apiName" >
-                <Row>
-                    <Col span="12">
-                    <Input v-model="apiInfo.apiName" placeholder="API名称..."></Input>
-                    </Col>
-                </Row>
-            </Form-item>
-            <Form-item label="API简介" prop="apiDesc">
-                <Row>
-                    <Col span="12">
-                    <Input v-model="apiInfo.apiDesc" placeholder="API简介..."></Input>
-                    </Col>
-                </Row>
-            </Form-item>
-            <Form-item label="开发人员" prop="devUser">
-                <Row>
-                    <Col span="12">
-                    <Input v-model="apiInfo.devUser" placeholder="API简介..."></Input>
-                    </Col>
-                </Row>
-            </Form-item>
-            <Form-item label="所属分组" prop="groupId">
-                <Row>
-                    <Col span="12">
-                    <Select v-model="apiInfo.groupId"
-                    filterable
-                    remote
-                    :remote-method="groupRemoteLoad"
-                    :loading="groupLoading">
-                        <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
-                    </Select>
-                    </Col>
-                    <Col>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="所属分组" prop="GroupID">
+                  <Row>
+                      <Col span="12">
+                      <Select v-model="apiInfo.GroupID"
+                      filterable
+                      remote
+                      :remote-method="groupRemoteLoad"
+                      :loading="groupLoading">
+                          <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                      </Select>
+                      </Col>
+                      <Col>
 
-                    </Col>
-                </Row>
-            </Form-item>
-            <Form-item label="API状态" prop="status">
-                <Row>
-                    <Col span="12">
-                    <Select v-model="apiInfo.status" filterable >
-                        <Option v-for="item in statusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
-                    </Col>
-                    <Col>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="验证类型" prop="ValidateType">
+                  <Row>
+                      <Col span="12">
+                      <Select v-model="apiInfo.ValidateType" filterable >
+                          <Option value="1">MD5验证</Option>
+                          <Option value="0">无校验</Option>
+                      </Select>
+                      </Col>
+                      <Col>
 
-                    </Col>
-                </Row>
-            </Form-item>
-            <Form-item label="是否返回原始响应字符串" prop="status">
-                <Row>
-                    <Col span="12">
-                    <Select v-model="apiInfo.status" filterable >
-                        <Option value="1">是</Option>
-                        <Option value="0">否</Option>
-                    </Select>
-                    </Col>
-                    <Col>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="开发人员" prop="DevUser">
+                  <Row>
+                      <Col span="12">
+                      <Input v-model="apiInfo.DevUser" placeholder="开发人员..."></Input>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="API状态" prop="Status">
+                  <Row>
+                      <Col span="12">
+                      <Select v-model="apiInfo.Status" filterable >
+                          <Option v-for="item in statusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                      </Select>
+                      </Col>
+                      <Col>
 
-                    </Col>
-                </Row>
-            </Form-item>
-            <Form-item label="验证类型" prop="status">
-                <Row>
-                    <Col span="12">
-                    <Select v-model="apiInfo.status" filterable >
-                        <Option value="1">基本</Option>
-                        <Option value="0">无校验</Option>
-                    </Select>
-                    </Col>
-                    <Col>
-
-                    </Col>
-                </Row>
-            </Form-item>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item label="是否返回原始响应字符串" prop="RawResponseFlag">
+                  <Row>
+                      <Col span="12">
+                      <Select v-model="apiInfo.RawResponseFlag" filterable >
+                          <Option value="1">是</Option>
+                          <Option value="0">否</Option>
+                      </Select>
+                      </Col>
+                      <Col>
+                      </Col>
+                  </Row>
+              </Form-item>
+              <Form-item >
+                <Button type="primary" @click="nextStep('apiInfo',1)"  :loading="loading">下一步</Button>
+              </Form-item>
           </Form>
         </Card>
         <Card title="定义API请求" v-show="stepIndex===1">
             <Form ref="apiInfo" :model="apiInfo" :rules="ruleCustom" :label-width="400">
-                <Form-item label="协议" prop="status">
+                <Form-item label="服务Host类型" prop="ServiceHostType">
                     <Row>
                         <Col span="12">
-                            <Select v-model="apiInfo.apiMethode" filterable >
-                                <Option v-for="item in apiMethodeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            <Select v-model="apiInfo.ServiceHostType" filterable >
+                              <Option value="1">手动注册</Option>
+                              <Option value="2">自发现</Option>
                             </Select>
                         </Col>
                         <Col>
                         </Col>
                     </Row>
                 </Form-item>
-                <Form-item label="Api请求地址" prop="apiUrl">
+                <Form-item label="服务注册名称" prop="ServiceDiscoveryName">
                     <Row>
                         <Col span="12">
-                        <Input v-model="apiInfo.apiUrl" placeholder="Api请求地址..."></Input>
+                        <Input v-model="apiInfo.ServiceDiscoveryName" placeholder="服务注册名称..."></Input>
                         </Col>
                         <Col>
                         </Col>
                     </Row>
                 </Form-item>
-                <Form-item label="Api请求方式" prop="apiMethode">
+                <Form-item label="请求路径" prop="ApiPath">
                     <Row>
                         <Col span="12">
-                            <Select v-model="apiInfo.apiMethode" filterable >
-                                <Option v-for="item in apiMethodeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        <Input v-model="apiInfo.ApiPath" placeholder="请求路径..."></Input>
+                        </Col>
+                        <Col>
+                        </Col>
+                    </Row>
+                </Form-item>
+                <Form-item label="支持协议" prop="SupportProtocol">
+                    <Row>
+                        <Col span="12">
+                            <Select v-model="apiInfo.SupportProtocol"   @on-change="handleSupportProtocolChange">
+                              <Option value="1">HTTP协议</Option>
+                              <Option value="2">RPC协议</Option>
                             </Select>
                         </Col>
                         <Col>
                         </Col>
                     </Row>
+                </Form-item>
+                <Form-item label="请求方式" prop="ReqMethod">
+                    <Row>
+                        <Col span="12">
+                            <Select v-model="apiInfo.ReqMethod" filterable>
+                                <Option v-for="item in ReqMethodOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </Select>
+                        </Col>
+                        <Col>
+                        </Col>
+                    </Row>
+                </Form-item>
+                <Form-item >
+                  <Button @click="prevStep('apiInfo',0)"  :loading="loading">上一步</Button>
+                  <Button type="primary" @click="nextStep('apiInfo',2)"  :loading="loading">下一步</Button>
                 </Form-item>
             </Form>
         </Card>
         <Card title="定义API后端服务" v-show="stepIndex===2">
             <Form ref="apiInfo" :model="apiInfo" :rules="ruleCustom" :label-width="400">
-                 <Form-item label="类型" prop="apiType">
+                 <Form-item label="接口类型" prop="Type">
                     <Row>
                         <Col span="12">
-                            <Select v-model="apiInfo.apiType" filterable >
-                                <Option v-for="item in apiTypeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            <Select v-model="apiInfo.Type" filterable >
+                                <Option v-for="item in typeOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                             </Select>
                         </Col>
                         <Col>
@@ -151,17 +195,10 @@
                         </Col>
                     </Row>
                 </Form-item>
-            </Form>
-        </Card>
-        </Col>
-    </Row>
-    <Row>
-        <Col>
-        <Card>
-            <Form ref="op" :label-width="400">
-            <Form-item >
-              <Button type="primary" @click="handleSubmit('formCustom')"  :loading="loading">下一步</Button>
-            </Form-item>
+                <Form-item >
+                  <Button @click="prevStep('apiInfo',1)"  :loading="loading">上一步</Button>
+                  <Button type="primary" @click="handleSubmit('apiInfo')"  :loading="loading">提交</Button>
+                </Form-item>
             </Form>
         </Card>
         </Col>
@@ -239,25 +276,42 @@ export default {
       }
     }
     return {
-      groupList: [{value: '1', label: '分组1'}, {value: '2', label: '分组2'}],
-      statusList: [{value: 0, label: '初始化'}, {value: 100, label: '有效'}, {value: -100, label: '暂停'}],
+      statusList: [{value: 0, label: '初始化'}, {value: 1, label: '有效'}, {value: -1, label: '无效'}],
       apiMethodeList: [{value: 1, label: 'HttpGet'}, {value: 2, label: 'HttpPost'}, {value: 100, label: 'JsonRpc'}],
-      apiTypeList: [{value: 1, label: '组合'}, {value: 2, label: '负载'}],
+      typeOption: [{value: 1, label: '组合'}, {value: 2, label: '负载'}],
       stepIndex: 0,
       token: true,
       loading: false,
       groupLoading: false,
       groupOption: [],
+      ReqMethodOption: [],
       modalShow: false,
       // bgUrl: bgUrl,
       apiInfo: {
-        groupId: 0,
-        devUser: '',
-        apiDesc: '',
-        apiName: '',
-        status: 1,
-        apiUrl: '',
-        apiMethode: ''
+        ID: 0,
+        Name: '',
+        Type: 0,
+        Desc: '',
+        BelongAppID: [],
+        GroupID: 0,
+        DevUser: '', // 开发人员
+        ServiceHostType: 0, // 服务Host类型
+        ServiceDiscoveryName: '', // 服务发现注册的服务名
+        ValidateType: 0, // 验证类型
+        Version: '', // Api 版本
+        ApiPath: '', // API请求路径
+        SupportProtocol: 0, // 支持协议 1.http 2.rpc
+        ReqMethod: 0, // 请求方式 http 协议支持1.get 2.post 3.put 4.delete rpc 协议支持 5.jsonrpc
+        TargetApis: '', // 目标api服务 [{"TargetKey":"","TargetUrl":"","CallMethod":"","CallName":"","Weight":0,"Status":0,"Timeout":0}]
+        IsUseMock: 0, // 是否启用Mock 0:不启用；1:启用
+        MockData: '', // mock请求返回数据
+        Status: 0, // 状态 0:是初始化 1:是有效 -1:是无效
+        RawResponseFlag: 0, // 是否返回原始响应字符串  0:不返回；1:返回
+        ResultType: 0, // 返回ContentType 1.json 2.文本 3.二进制 4.xml 5.html
+        ResultSample: '', // 返回结果示例
+        FailResultSample: '', // 失败返回结果示例
+        CreateUser: 0, // 创建人
+        CreateTime: 0// 创建时间
       },
       targetApiInfo: {
         targetUrl: '',
@@ -341,21 +395,56 @@ export default {
     //
     groupRemoteLoad (query) {
       var me = this
-      if (query !== '') {
-        me.groupLoading = true
-
-        getTop10ByKey(query).then(data => {
-          me.groupLoading = false
-          const list = data.map(item => {
-            return {
-              value: item.ID,
-              label: item.Name
-            }
-          })
-          me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
-        }, 200)
-      } else {
-        me.groupOption = []
+      me.groupLoading = true
+      getTop10ByKey(query).then(data => {
+        me.groupLoading = false
+        const list = data.map(item => {
+          return {
+            value: item.ID,
+            label: item.Name
+          }
+        })
+        me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      })
+      // if (query !== '') {
+      // } else {
+      //   me.groupOption = []
+      // }
+    },
+    loadGroupOption (key) {
+      var me = this
+      me.groupLoading = true
+      getTop10ByKey(key).then(data => {
+        me.groupLoading = false
+        const list = data.map(item => {
+          return {
+            value: item.ID,
+            label: item.Name
+          }
+        })
+        me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      })
+    },
+    nextStep (name, index) {
+      var me = this
+      this.loading = true
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          me.stepIndex = index
+        }
+        this.loading = false
+      })
+    },
+    prevStep (name, index) {
+      this.stepIndex = index
+    },
+    handleSupportProtocolChange (value) {
+      if (value === '1') {
+        this.ReqMethodOption = [{value: 1, label: 'HttpGet'}, {value: 2, label: 'HttpPost'}, {value: 3, label: 'HttpPut'}, {value: 4, label: 'HttpDelete'}]
+        this.apiInfo.ReqMethod = 1
+      } else if (value === '2') {
+        this.ReqMethodOption = [{value: 5, label: 'JsonRPC'}]
+        this.apiInfo.ReqMethod = 5
       }
     },
     handleSubmit (name) {
@@ -430,6 +519,7 @@ export default {
       }
       this.tableData.push(targetApiInfo)
       this.tableData.push(targetApiInfo)
+      this.groupRemoteLoad('')
     }
   },
   created () {
@@ -442,22 +532,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-  html, body {
-    position: absolute;
-    height: 100%;
-    width: 100%;
+  .steps {
+      margin: 16px auto;
   }
-.bg{
-}
-  #app {
-    width: 100%;
-    height: 100%;
-    //overflow: scroll;
-  }
-  .help {
-    display: block;
-    text-align: left;
-    font-size: 12px;
-    color: #9ea7b4;
-  }
+
 </style>
