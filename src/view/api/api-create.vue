@@ -14,7 +14,7 @@
     <Row>
         <Col :xs="24">
         <Card title="基本信息" v-show="stepIndex===0">
-            <Form ref="apiInfo" class="steps" :model="apiInfo" :rules="ruleCustom" :label-width="400">
+            <Form ref="apiInfo" class="steps" :model="apiInfo" :label-width="400">
               <Form-item label="API名称" prop="Name" >
                   <Row>
                       <Col span="12">
@@ -112,7 +112,7 @@
           </Form>
         </Card>
         <Card title="定义API请求" v-show="stepIndex===1">
-            <Form ref="apiInfo" :model="apiInfo" :rules="ruleCustom" :label-width="400">
+            <Form ref="apiInfo" :model="apiInfo" :label-width="400">
                 <Form-item label="服务Host类型" prop="ServiceHostType">
                     <Row>
                         <Col span="12">
@@ -173,10 +173,10 @@
             </Form>
         </Card>
         <Card title="定义API后端服务" v-show="stepIndex===2">
-            <Form ref="apiInfo" :model="apiInfo" :rules="ruleCustom" :label-width="400">
+            <Form ref="apiInfo" :model="apiInfo"  :label-width="400">
                  <Form-item label="接口类型" prop="Type">
                     <Row>
-                        <Col span="12">
+                        <Col span="16">
                             <Select v-model="apiInfo.Type" filterable >
                                 <Option v-for="item in typeOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                             </Select>
@@ -185,10 +185,10 @@
                         </Col>
                     </Row>
                 </Form-item>
-                <Form-item label="服务地址" prop="apiType">
+                <Form-item label="服务地址" prop="TargetApis">
                     <Row>
-                        <Col span="12">
-                           <Table ref="tables" :data="tableData" :columns="columns"/>
+                        <Col span="16">
+                            <Table ref="tables" :data="targetApiTableData" :columns="targetApiColumns"/>
                             <Button type="primary" @click="handleAddTargetApiInfo()">添加服务地址</Button>
                         </Col>
                         <Col>
@@ -206,56 +206,45 @@
 
     <Modal title="服务地址" :mask-closable="false" v-model="modalShow" width="30">
            <Form ref="targetApiInfo" :model="targetApiInfo" :label-width="120">
-                <Form-item label="targetUrl" prop="targetUrl">
+                <Form-item label="服务地址" prop="TargetUrl">
                     <Row>
-                        <Col span="12">
-                        <Input v-model="targetApiInfo.targetUrl" placeholder="请求地址..."></Input>
-                        </Col>
-                        <Col>
+                        <Col span="18">
+                        <Input v-model="targetApiInfo.TargetUrl" placeholder="服务地址..."></Input>
                         </Col>
                     </Row>
                 </Form-item>
-                <Form-item label="callName" prop="callName">
+                <Form-item label="调用方法" prop="CallName">
                     <Row>
-                        <Col span="12">
-                        <Input v-model="targetApiInfo.callName" placeholder="请求地址..."></Input>
-                        </Col>
-                        <Col>
+                        <Col span="18">
+                        <Input v-model="targetApiInfo.CallName" placeholder="调用方法..."></Input>
                         </Col>
                     </Row>
                 </Form-item>
-                <Form-item label="callMethod" prop="callMethod">
+                <Form-item label="调用方式" prop="CallMethod">
                     <Row>
-                        <Col span="12">
-                        <Input v-model="targetApiInfo.callMethod" placeholder="请求地址..."></Input>
-                        </Col>
-                        <Col>
+                        <Col span="18">
+                        <Select v-model="targetApiInfo.CallMethod" filterable >
+                              <Option value="1">HttpGet</Option>
+                              <Option value="2">HttpPost</Option>
+                              <Option value="3">HttpPut</Option>
+                              <Option value="4">HttpDelete</Option>
+                              <Option value="5">JsonRPC</Option>
+                            </Select>
                         </Col>
                     </Row>
                 </Form-item>
-                <Form-item label="weight" prop="weight">
+                <Form-item label="权重" prop="Weight">
                     <Row>
-                        <Col span="12">
-                        <Input v-model="targetApiInfo.weight" placeholder="请求地址..."></Input>
-                        </Col>
-                        <Col>
-                        </Col>
-                    </Row>
-                </Form-item>
-                <Form-item label="status" prop="status">
-                    <Row>
-                        <Col span="12">
-                        <Input v-model="targetApiInfo.status" placeholder="请求地址..."></Input>
-                        </Col>
-                        <Col>
+                        <Col span="18">
+                        <Input v-model="targetApiInfo.Weight" placeholder="权重..."></Input>
                         </Col>
                     </Row>
                 </Form-item>
            </Form>
            <div slot="footer">
-                <Button type="primary">提交</Button>
+                <Button type="primary" @click="savetargetApiInfo('targetApiInfo')">提交</Button>
                 <!-- <Button @click="handleReset('application')" style="margin-left: 8px">重置</Button> -->
-                <Button style="margin-left: 8px">关闭</Button>
+                <Button style="margin-left: 8px" @click="cancelTargetApiInfo('targetApiInfo')">关闭</Button>
             </div>
     </Modal>
   </div>
@@ -268,16 +257,9 @@ import { getTop10ByKey } from '@/api/api-group'
 export default {
   name: 'api-create',
   data () {
-    const validateCompanyId = (rule, value, callback) => {
-      if (value.toString().length !== 15 && value.toString().length !== 18) {
-        callback(new Error('请输入正确的营业执照注册号'))
-      } else {
-        callback()
-      }
-    }
     return {
       statusList: [{value: 0, label: '初始化'}, {value: 1, label: '有效'}, {value: -1, label: '无效'}],
-      apiMethodeList: [{value: 1, label: 'HttpGet'}, {value: 2, label: 'HttpPost'}, {value: 100, label: 'JsonRpc'}],
+      apiMethodeList: [{value: 1, label: 'HttpGet'}, {value: 2, label: 'HttpPost'}, {value: 3, label: 'HttpPut'}, {value: 4, label: 'HttpDelete'}, {value: 5, label: 'JsonRPC'}],
       typeOption: [{value: 1, label: '组合'}, {value: 2, label: '负载'}],
       stepIndex: 0,
       token: true,
@@ -286,7 +268,6 @@ export default {
       groupOption: [],
       ReqMethodOption: [],
       modalShow: false,
-      // bgUrl: bgUrl,
       apiInfo: {
         ID: 0,
         Name: '',
@@ -314,21 +295,41 @@ export default {
         CreateTime: 0// 创建时间
       },
       targetApiInfo: {
-        targetUrl: '',
-        callName: '',
-        callMethod: '',
-        weight: '',
-        status: 0
+        TargetKey: '',
+        TargetUrl: '',
+        CallName: '',
+        CallMethod: 0,
+        Weight: '',
+        Timeout: 0,
+        Status: 0
       },
-      columns: [
-        {title: '地址', key: 'targetUrl'},
-        {title: 'CallName', key: 'callName'},
-        {title: 'CallMethod', key: 'callMethod'},
-        {title: 'Weight', key: 'weight'},
-        {title: 'Status', key: 'status'},
+      targetApiColumns: [
+        {title: '服务地址', key: 'TargetUrl'},
+        {title: '调用方法', key: 'CallName'},
+        { title: '调用方式',
+          key: 'CallMethod',
+          render: (h, params) => {
+            const row = params.row
+            const v = row.CallMethod
+            var text = ''
+            this.apiMethodeList.map(function (item, index) {
+              if (item.value === v) {
+                text = item.label
+              }
+            })
+            return h('span', {
+              props: {
+              },
+              style: {
+              }
+            }, text)
+          }
+        },
+        {title: '权重', key: 'Weight'},
         {title: '操作',
           key: 'handle',
           align: 'center',
+          width: 80,
           render: (h, params) => {
             return h('div', [
               h('Button', {
@@ -341,7 +342,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.show(params.index)
+                    this.handleEditTargetApiInfo(this.targetApiTableData[params.index])
                   }
                 }
               }, '编辑'),
@@ -352,7 +353,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.remove(params.index)
+                    this.handleDelTargetApiInfo(this.targetApiTableData[params.index])
                   }
                 }
               }, '删除')
@@ -360,35 +361,7 @@ export default {
           }
         }
       ],
-      tableData: [],
-      ruleCustom: {
-        company: [
-          {required: true, message: '企业名称不能为空', trigger: 'blur'}
-        ],
-        mark: [
-          {required: true, message: '标示不能为空', trigger: 'blur'},
-          {message: '标示只支持字母', trigger: 'blur', pattern: /^[A-Za-z]$/}
-        ],
-        companyId: [
-          {required: true, message: '营业执照注册号不能为空', trigger: 'blur'},
-          {validator: validateCompanyId, trigger: 'blur'}
-        ],
-        userName: [
-          {required: true, message: '管理员名称不能为空', trigger: 'blur'}
-        ],
-        idCard: [
-          {required: true, message: '身份证号不能为空', trigger: 'blur'},
-          {
-            message: '身份证号格式不正确',
-            trigger: 'blur',
-            pattern: /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{4}$/
-          }
-        ],
-        phone: [
-          {required: true, message: '手机号不能为空', trigger: 'blur'},
-          {message: '手机号格式不正确', len: 11, trigger: 'blur', pattern: /^[1][3,4,5,7,8][0-9]{9}$/}
-        ]
-      }
+      targetApiTableData: []
     }
   },
   methods: {
@@ -451,56 +424,6 @@ export default {
       this.loading = true
       this.$refs[name].validate((valid) => {
         if (valid) {
-          let data = {
-            account_type: this.formCustom.typeId,
-            company_name: this.formCustom.company,
-            business_license_number: this.formCustom.companyId,
-            personName: this.formCustom.userName,
-            personSex: this.formCustom.idCard.substring(16, 1) % 2 ? '1' : '0',
-            idCard: this.formCustom.idCard,
-            telephone: this.formCustom.phone
-            // promotionTableName: GetQueryString('promotionTableName') || '',
-            // promotionTableId: GetQueryString('promotionTableId') || '',
-            // email: GetQueryString('e') || ''
-          }
-          this.$api.postUserInfo(data).then(res => {
-            this.loading = false
-            if (res.code === 0) {
-              this.$Message.success('提交成功!')
-              let url = window.location.href
-              if (window.location.search === '') {
-                url = window.location.href
-              } else {
-                url = url.split(window.location.search)[0]
-              }
-              url = url.replace('type.html', 'login.html')
-              window.location.href = url
-            } else {
-              alert(JSON.stringify(res))
-            }
-          }).catch(err => {
-            this.loading = false
-            console.error('哎哟~！', err)
-          })
-        } else {
-          this.loading = false
-          this.$Message.error('表单验证失败!')
-        }
-      })
-    },
-    checkToken () {
-      let data = {
-        // token: GetQueryString('token') || '',
-        // e: GetQueryString('e') || '',
-        // p: GetQueryString('p') || ''
-      }
-      this.$api.checkToken(data).then(res => {
-        if (res.code === 0) {
-          if (res.state === '1') {
-            this.token = true
-          } else {
-            this.token = false
-          }
         }
       })
     },
@@ -508,22 +431,56 @@ export default {
     },
     handleAddTargetApiInfo () {
       this.modalShow = true
+      this.openTargetApiInfo(null)
+    },
+    handleEditTargetApiInfo (row) {
+      debugger
+      this.modalShow = true
+      this.openTargetApiInfo(row)
+    },
+    handleDelTargetApiInfo (row) {
+      debugger
+      var me = this
+      for (var i = 0; i < me.targetApiTableData.length; i++) { me.targetApiTableData.splice(1, 1) }
+    },
+    openTargetApiInfo (data) {
+      if (!data) {
+        this.targetApiInfo = {
+          TargetKey: '',
+          TargetUrl: '',
+          CallName: '',
+          CallMethod: 0,
+          Weight: '',
+          Timeout: 0,
+          Status: 0
+        }
+      } else {
+        this.targetApiInfo = {
+          TargetKey: data.TargetKey,
+          TargetUrl: data.TargetUrl,
+          CallName: data.CallName,
+          CallMethod: data.CallMethod,
+          Weight: data.Weight,
+          Timeout: data.Timeout,
+          Status: data.Status
+        }
+      }
+    },
+    savetargetApiInfo (name) {
+      var me = this
+      this.$refs[name].validate((valid) => {
+        me.targetApiTableData.push(me.targetApiInfo)
+        this.modalShow = false
+      })
+    },
+    cancelTargetApiInfo () {
+      this.modalShow = false
     },
     init () {
-      var targetApiInfo = {
-        targetUrl: '',
-        callName: 'aa',
-        callMethod: 'bb',
-        weight: '',
-        status: ''
-      }
-      this.tableData.push(targetApiInfo)
-      this.tableData.push(targetApiInfo)
       this.groupRemoteLoad('')
     }
   },
   created () {
-    this.checkToken()
   },
   mounted () {
     this.init()
