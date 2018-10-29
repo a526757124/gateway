@@ -13,42 +13,21 @@
       @on-page-size-change='handlePageSizeChange'
       @on-delete="handleDelete"/>
     </Card>
-    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50">
-           <Form ref="apiInfo" :model="apiInfo" :rules="apiRuleValidate" :label-width="80">
-                <FormItem label="api名称" prop="Name">
-                    <Input type="text" v-model="apiInfo.Name" placeholder="api名称..."></Input>
-                </FormItem>
-                <FormItem label="api描述" prop="Desc">
-                    <Input type="textarea" :rows="4"  v-model="apiInfo.ApiDesc" placeholder="api描述..."></Input>
-                </FormItem>
-                <FormItem label="API请求路径" prop="ApiPath">
-                    <Input type="text" v-model="apiInfo.ApiPath" placeholder="API请求路径..."></Input>
-                </FormItem>
-                <FormItem label="目标地址" prop="TargetApiUrl">
-                    <Input v-model="apiInfo.TargetApiUrl" type="textarea" :rows="4" placeholder="目标地址..."></Input>
-                </FormItem>
-                <FormItem label="api状态" prop="Status">
-                    <Select v-model="apiInfo.Status">
-                        <Option v-for="item in statusList" :value="item.value" :key="item.value">{{item.label}}</Option>
-                    </Select>
-                </FormItem>
-           </Form>
-           <div slot="footer">
-                <Button type="primary" @click="handleSubmit('apiInfo')">提交</Button>
-                <!-- <Button @click="handleReset('application')" style="margin-left: 8px">重置</Button> -->
-                <Button @click="handleCancel()" style="margin-left: 8px">关闭</Button>
-            </div>
+    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" footer-hide width="50" z-index="0">
+           <createAPI ref="createAPI" @on-save-after="saveAfter"></createAPI>
     </Modal>
   </div>
 </template>
 
 <script>
 import Tables from '_c/tables'
-import { getList } from '@/api/apiInfo'
+import CreateAPI from './components/createAPI.vue'
+import { getList, getAPIInfoById } from '@/api/apiInfo'
 export default {
   name: 'api-table',
   components: {
-    Tables
+    Tables,
+    CreateAPI
   },
   data () {
     return {
@@ -198,7 +177,6 @@ export default {
       })
     },
     handleAdd () {
-      debugger
       this.open(null)
       this.createModalShow = true
       this.modalTitle = '添加API基本信息'
@@ -209,8 +187,7 @@ export default {
       this.modalTitle = '编辑API基本信息'
     },
     open (row) {
-      debugger
-      me = this
+      var me = this
       if (row) {
         var id = row.ID
         getAPIInfoById(id).then((data) => {
@@ -254,6 +231,9 @@ export default {
     handlePageSizeChange (size) {
       this.pageSize = size
       this.loadData()
+    },
+    saveAfter (data) {
+      this.createModalShow = false
     }
   },
   mounted () {

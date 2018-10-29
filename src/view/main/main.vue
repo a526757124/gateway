@@ -13,14 +13,17 @@
       <Header class="header-con">
         <header-bar :collapsed="collapsed" @on-coll-change="handleCollapsedChange">
           <user :user-avator="userAvator"/>
-          <language @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/>
-          <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/>
+          <!-- <language @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/> -->
+          <!-- <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/> -->
         </header-bar>
       </Header>
       <Content>
         <Layout>
-          <div class="tag-nav-wrapper">
+          <!-- <div class="tag-nav-wrapper">
             <tags-nav :value="$route" @input="handleClick" :list="tagNavList" @on-close="handleCloseTag"/>
+          </div> -->
+          <div style="margin-top: 24px;">
+            <custom-bread-crumb show-icon style="margin-left: 30px;" :list="breadCrumbList"></custom-bread-crumb>
           </div>
           <Content class="content-wrapper">
             <keep-alive :include="cacheList">
@@ -39,6 +42,7 @@ import TagsNav from './components/tags-nav'
 import User from './components/user'
 import Fullscreen from './components/fullscreen'
 import Language from './components/language'
+import customBreadCrumb from './components/custom-bread-crumb'
 import { mapMutations, mapActions } from 'vuex'
 import { getNewTagList, getNextName } from '@/libs/util'
 import minLogo from '@/assets/images/logo-min.jpg'
@@ -52,6 +56,7 @@ export default {
     Language,
     TagsNav,
     Fullscreen,
+    customBreadCrumb,
     User
   },
   data () {
@@ -80,6 +85,16 @@ export default {
     },
     local () {
       return this.$store.state.app.local
+    },
+    breadCrumbList () {
+      // 只显示最后一个
+      var list = []
+      this.$store.state.app.breadCrumbList.map(item => {
+        if (item.meta.isBreadCrumb) {
+          list.push(item)
+        }
+      })
+      return list
     }
   },
   methods: {
@@ -129,27 +144,27 @@ export default {
     this.setBreadCrumb(this.$route.matched)
     // 设置初始语言
     this.setLocal(this.$i18n.locale)
-    //文档提示
-    this.$Notice.info({
-      title: '想快速上手，去看文档吧',
-      duration: 0,
-      render: (h) => {
-        return h('p', {
-          style: {
-            fontSize: '13px'
-          }
-        }, [
-          '点击',
-          h('a', {
-            attrs: {
-              href: 'https://lison16.github.io/iview-admin-doc/#/',
-              target: '_blank'
-            }
-          }, 'iview-admin2.0文档'),
-          '快速查看'
-        ])
-      }
-    })
+    // 文档提示
+    // this.$Notice.info({
+    //   title: '想快速上手，去看文档吧',
+    //   duration: 0,
+    //   render: (h) => {
+    //     return h('p', {
+    //       style: {
+    //         fontSize: '13px'
+    //       }
+    //     }, [
+    //       '点击',
+    //       h('a', {
+    //         attrs: {
+    //           href: 'https://lison16.github.io/iview-admin-doc/#/',
+    //           target: '_blank'
+    //         }
+    //       }, 'iview-admin2.0文档'),
+    //       '快速查看'
+    //     ])
+    //   }
+    // })
   }
 }
 </script>

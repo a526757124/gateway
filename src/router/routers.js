@@ -27,7 +27,8 @@ export default [
     redirect: '/home',
     component: Main,
     meta: {
-      hideInMenu: true,
+      hideInMenu: false,
+      title: '首页',
       notCache: true
     },
     children: [
@@ -35,7 +36,8 @@ export default [
         path: '/home',
         name: 'home',
         meta: {
-          hideInMenu: true,
+          hideInMenu: false,
+          icon: 'logo-buffer',
           title: '首页',
           notCache: true
         },
@@ -57,7 +59,7 @@ export default [
         path: 'application-table',
         name: 'application-table',
         meta: {
-          
+          isBreadCrumb:true,//面包屑显示
           icon: 'logo-buffer',
           title: '应用列表'
         },
@@ -79,6 +81,7 @@ export default [
         path: '/api-group',
         name: 'api-group',
         meta: {
+          isBreadCrumb:true,//面包屑显示
           icon: 'logo-buffer',
           title: '分组列表'
         },
@@ -88,6 +91,7 @@ export default [
         path: '/api-table',
         name: 'api-table',
         meta: {
+          isBreadCrumb:true,//面包屑显示
           icon: 'logo-buffer',
           title: 'API列表'
         },
@@ -97,10 +101,9 @@ export default [
         path: '/api-create',
         name: 'api-create',
         meta: {
+          isBreadCrumb:true,//面包屑显示
           hideInMenu:true,
-          notCache:true,
           icon: 'logo-buffer',
-          
           title: '创建API'
         },
         component: () => import('@/view/api/api-create.vue')

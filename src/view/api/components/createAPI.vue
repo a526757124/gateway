@@ -238,6 +238,12 @@ import { getTop10ByKey } from '@/api/api-group'
 import { add, getAPIInfoById } from '@/api/apiInfo'
 export default {
   name: 'createAPI',
+  props: {
+    apiID: {
+      type: Number,
+      default: 0
+    }
+  },
   data () {
     return {
       statusList: [{value: 0, label: '初始化'}, {value: 1, label: '有效'}, {value: -1, label: '无效'}],
@@ -419,6 +425,7 @@ export default {
         if (valid) {
           add(this.apiInfo).then(data => {
             this.loading = false
+            this.onSaveAfter(data)
           })
         }
       })
@@ -470,7 +477,9 @@ export default {
     },
     init () {
       this.groupRemoteLoad('')
-      this.initData()
+    },
+    onSaveAfter (data) {
+      this.$emit('on-save-after', data)
     },
     initData () {
       var me = this
@@ -507,6 +516,8 @@ export default {
       }
     }
 
+  },
+  watch: {
   },
   mounted () {
     this.init()
