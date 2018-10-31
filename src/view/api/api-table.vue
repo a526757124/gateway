@@ -7,7 +7,6 @@
       :currentIndex="pageIndex"
       :pageSize="pageSize"
       :addBtnTitle="addBtnTitle"
-      :addBtnTo="addBtnTo"
       @on-add="handleAdd"
       @on-change="handlePageChange"
       @on-page-size-change='handlePageSizeChange'

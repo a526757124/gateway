@@ -8,6 +8,14 @@ export const getList = (data) => {
   })
 }
 
+export const getAppInfoSelectDataByKey = (data) => {
+  return axios.request({
+    url: '/App/GetAppInfoSelectDataByKey',
+    data: data,
+    method: 'post'
+  })
+}
+
 export const add = (data) => {
   return axios.request({
     url: '/App/Add',
