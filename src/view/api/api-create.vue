@@ -238,6 +238,8 @@ import { getTop10ByKey } from '@/api/api-group'
 import { add, getAPIInfoById } from '@/api/apiInfo'
 export default {
   name: 'createAPI',
+  props: {
+  },
   data () {
     return {
       statusList: [{value: 0, label: '初始化'}, {value: 1, label: '有效'}, {value: -1, label: '无效'}],
@@ -507,6 +509,11 @@ export default {
       }
     }
 
+  },
+  watch: {
+    formData (val, oldVal) {
+      console.log('new: %s, old: %s', val, oldVal)
+    }
   },
   mounted () {
     this.init()
