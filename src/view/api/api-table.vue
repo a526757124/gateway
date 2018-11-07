@@ -12,7 +12,7 @@
       @on-page-size-change='handlePageSizeChange'
       @on-delete="handleDelete"/>
     </Card>
-    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" footer-hide width="50" z-index="0">
+    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50" z-index="0">
         <div>
           <Row>
             <Col :xs="24" >
@@ -43,17 +43,14 @@
                             </Col>
                         </Row>
                     </Form-item>
-                    <Form-item label="所属应用" prop="BelongAppID">
+                    <Form-item label="所属应用" prop="BelongApps">
                         <Row>
                             <Col span="18">
-                            <Select v-model="apiInfo.BelongAppID"
-                            multiple
-                            filterable
-                            remote
-                            :remote-method="groupRemoteLoad"
-                            :loading="groupLoading">
-                                <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
-                            </Select>
+                            <Select v-model="apiInfo.BelongApps"
+                              multiple
+                              :loading="appInfoLoading">
+                          <Option v-for="(option,index) in appInfoOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                      </Select>
                             </Col>
                         </Row>
                     </Form-item>
@@ -61,9 +58,6 @@
                         <Row>
                             <Col span="18">
                             <Select v-model="apiInfo.GroupID"
-                            filterable
-                            remote
-                            :remote-method="groupRemoteLoad"
                             :loading="groupLoading">
                                 <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
                             </Select>
@@ -101,15 +95,12 @@
                     <Form-item label="是否返回原始响应字符串" prop="RawResponseFlag">
                         <Row>
                             <Col span="18">
-                              <i-Switch size="large" v-model="apiInfo.RawResponseFlag">
-                                <span slot="open" >是</span>
+                              <i-Switch v-model="apiInfo.RawResponseFlag" :true-value="1" :false-value="0">
+                                <span slot="open">是</span>
                                 <span slot="close">否</span>
                               </i-Switch>
                             </Col>
                         </Row>
-                    </Form-item>
-                    <Form-item >
-                      <Button type="primary" @click="nextStep('apiInfo',1)"  :loading="loading">下一步</Button>
                     </Form-item>
                 </Form>
               </Card>
@@ -159,23 +150,19 @@
                       <Form-item label="是否启用Mock" prop="IsUseMock">
                           <Row>
                               <Col span="18">
-                                  <i-Switch size="large" v-model="apiInfo.IsUseMock" @on-change="handleIsUseMockChange">
+                                  <i-Switch size="large" v-model="apiInfo.IsUseMock"  :true-value="1" :false-value="0">
                                       <span slot="open" >启用</span>
                                       <span slot="close">关闭</span>
                                   </i-Switch>
                               </Col>
                           </Row>
                       </Form-item>
-                      <Form-item label="Mock请求返回数据" prop="MockData" v-show="mockDataShow">
+                      <Form-item label="Mock请求返回数据" prop="MockData" v-show="apiInfo.IsUseMock===1">
                           <Row>
                               <Col span="18">
                                   <Input type="textarea" v-model="apiInfo.MockData" :rows="2"></Input>
                               </Col>
                           </Row>
-                      </Form-item>
-                      <Form-item >
-                        <Button @click="prevStep('apiInfo',0)"  :loading="loading">上一步</Button>
-                        <Button type="primary" @click="nextStep('apiInfo',2)"  :loading="loading">下一步</Button>
                       </Form-item>
                   </Form>
               </Card>
@@ -198,60 +185,63 @@
                               </Col>
                           </Row>
                       </Form-item>
-                      <Form-item >
-                        <Button @click="prevStep('apiInfo',1)"  :loading="loading">上一步</Button>
-                        <Button type="primary" @click="handleSubmit('apiInfo')"  :loading="loading">提交</Button>
-                      </Form-item>
                   </Form>
               </Card>
               </Col>
           </Row>
-          <Modal title="服务地址" :mask-closable="false" v-model="modalShow" width="30" z-index="100">
-                <Form ref="targetApiInfo" :model="targetApiInfo" :label-width="120">
-                      <Form-item label="服务地址" prop="TargetUrl">
-                          <Row>
-                              <Col span="18">
-                              <Input v-model="targetApiInfo.TargetUrl" placeholder="服务地址..."></Input>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="调用方式" prop="CallMethod">
-                          <Row>
-                              <Col span="18">
-                              <Select v-model="targetApiInfo.CallMethod" filterable @on-change="handleTargetApiInfoCallMethodChange">
-                                <Option v-for="item in targetApiInfoCallMethodOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                              </Select>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="调用方法" prop="CallName" v-show="callNameShow">
-                          <Row>
-                              <Col span="18">
-                              <Input v-model="targetApiInfo.CallName" placeholder="调用方法..."></Input>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="权重" prop="Weight">
-                          <Row>
-                              <Col span="18">
-                              <Input v-model="targetApiInfo.Weight" placeholder="权重..."></Input>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                </Form>
-                <div slot="footer">
-                      <Button type="primary" @click="savetargetApiInfo('targetApiInfo')">提交</Button>
-                      <!-- <Button @click="handleReset('application')" style="margin-left: 8px">重置</Button> -->
-                      <Button style="margin-left: 8px" @click="cancelTargetApiInfo('targetApiInfo')">关闭</Button>
-                  </div>
-          </Modal>
         </div>
+        <div slot="footer" style="text-align:center">
+          <Button @click="prevStep('apiInfo')"  :loading="loading" v-show="stepIndex>0">上一步</Button>
+          <Button @click="nextStep('apiInfo')"  :loading="loading" v-show="stepIndex<2">下一步</Button>
+          <Button type="primary" @click="handleSubmit('apiInfo')"  :loading="loading">保 存</Button>
+          <Button  @click="cancelApiInfo('targetApiInfo')">关 闭</Button>
+        </div>
+    </Modal>
+    <Modal title="服务地址" :mask-closable="false" v-model="modalShow" width="30" z-index="100">
+          <Form ref="targetApiInfo" :model="targetApiInfo" :label-width="120">
+                <Form-item label="服务地址" prop="TargetUrl">
+                    <Row>
+                        <Col span="18">
+                        <Input v-model="targetApiInfo.TargetUrl" placeholder="服务地址..."></Input>
+                        </Col>
+                    </Row>
+                </Form-item>
+                <Form-item label="调用方式" prop="CallMethod">
+                    <Row>
+                        <Col span="18">
+                        <Select v-model="targetApiInfo.CallMethod" >
+                          <Option v-for="item in targetApiInfoCallMethodOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        </Select>
+                        </Col>
+                    </Row>
+                </Form-item>
+                <Form-item label="调用方法" prop="CallName" v-show="targetApiInfo.CallMethod===5">
+                    <Row>
+                        <Col span="18">
+                        <Input v-model="targetApiInfo.CallName" placeholder="调用方法..."></Input>
+                        </Col>
+                    </Row>
+                </Form-item>
+                <Form-item label="权重" prop="Weight">
+                    <Row>
+                        <Col span="18">
+                        <Input v-model="targetApiInfo.Weight" placeholder="权重..."></Input>
+                        </Col>
+                    </Row>
+                </Form-item>
+          </Form>
+          <div slot="footer">
+                <Button type="primary" @click="savetargetApiInfo('targetApiInfo')">保 存</Button>
+                <!-- <Button @click="handleReset('application')" style="margin-left: 8px">重置</Button> -->
+                <Button style="margin-left: 8px" @click="cancelTargetApiInfo('targetApiInfo')">关 闭</Button>
+          </div>
     </Modal>
   </div>
 </template>
 
 <script>
 import Tables from '_c/tables'
+import { Message } from 'iview'
 import { getTop10ByKey } from '@/api/api-group'
 import { getAppInfoSelectDataByKey } from '@/api/appInfo'
 import { add, update, getList, getAPIInfoById } from '@/api/apiInfo'
@@ -336,6 +326,7 @@ export default {
         Name: '',
         Type: 0,
         Desc: '',
+        BelongApps: [],
         GroupID: 0,
         DevUser: '', // 开发人员
         ServiceHostType: 0, // 服务Host类型
@@ -346,10 +337,10 @@ export default {
         SupportProtocol: 0, // 支持协议 1.http 2.rpc
         ReqMethod: 0, // 请求方式 http 协议支持1.get 2.post 3.put 4.delete rpc 协议支持 5.jsonrpc
         TargetApis: '', // 目标api服务 [{"TargetKey":"","TargetUrl":"","CallMethod":"","CallName":"","Weight":0,"Status":0,"Timeout":0}]
-        IsUseMock: 0, // 是否启用Mock 0:不启用；1:启用
+        IsUseMock: false, // 是否启用Mock 0:不启用；1:启用
         MockData: '', // mock请求返回数据
         Status: 0, // 状态 0:是初始化 1:是有效 -1:是无效
-        RawResponseFlag: 0, // 是否返回原始响应字符串  0:不返回；1:返回
+        RawResponseFlag: false, // 是否返回原始响应字符串  0:不返回；1:返回
         ResultType: 0, // 返回ContentType 1.json 2.文本 3.二进制 4.xml 5.html
         ResultSample: '', // 返回结果示例
         FailResultSample: '', // 失败返回结果示例
@@ -381,6 +372,8 @@ export default {
       loading: false,
       groupLoading: false,
       groupOption: [],
+      appInfoLoading: false,
+      appInfoOption: [],
       ReqMethodOption: [],
       modalShow: false,
       callNameShow: false,
@@ -458,7 +451,6 @@ export default {
       this.loadData()
       this.groupRemoteLoad('')
       this.loadAppInfoOption('')
-      this.initData()
     },
     loadData () {
       var query = {
@@ -487,6 +479,7 @@ export default {
     },
     open (row) {
       var me = this
+      me.stepIndex = 0
       if (row) {
         var id = row.ID
         getAPIInfoById({ID: id}).then((data) => {
@@ -531,10 +524,6 @@ export default {
       this.pageSize = size
       this.loadData()
     },
-    saveAfter (data) {
-      this.createModalShow = false
-    },
-
     groupRemoteLoad (query) {
       var me = this
       me.groupLoading = true
@@ -581,31 +570,24 @@ export default {
         me.appInfoOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
       })
     },
-    nextStep (name, index) {
+    nextStep (name) {
       var me = this
       this.loading = true
       this.$refs[name].validate(valid => {
         if (valid) {
-          me.stepIndex = index
+          me.stepIndex++
+          if (me.stepIndex >= 2) {
+            me.stepIndex = 2
+          }
         }
         this.loading = false
       })
     },
-    prevStep (name, index) {
-      this.stepIndex = index
-    },
-    handleIsUseMockChange (value) {
-      if (value) {
-        this.mockDataShow = true
-      } else {
-        this.mockDataShow = false
-      }
-    },
-    handleTargetApiInfoCallMethodChange (value) {
-      if (value === 5) {
-        this.callNameShow = true
-      } else {
-        this.callNameShow = false
+    // 上一步
+    prevStep (name) {
+      this.stepIndex--
+      if (this.stepIndex <= 0) {
+        this.stepIndex = 0
       }
     },
     handleSupportProtocolChange (value) {
@@ -626,16 +608,24 @@ export default {
             add(this.apiInfo).then(data => {
               this.loading = false
               this.loadData()
+              this.createModalShow = false
+              Message.success('保存成功！')
             })
           } else {
             update(this.apiInfo).then(data => {
               this.loading = false
               this.loadData()
+              this.createModalShow = false
+              Message.success('保存成功！')
             })
           }
         }
       })
     },
+    cancelApiInfo () {
+      this.createModalShow = false
+    },
+
     handleAddTargetApiInfo () {
       this.modalShow = true
       this.openTargetApiInfo(null)
@@ -680,40 +670,6 @@ export default {
     },
     cancelTargetApiInfo () {
       this.modalShow = false
-    },
-    initData () {
-      var me = this
-      if (apiID !== 0) {
-        getAPIInfoById(apiID).then((data) => {
-          me.apiInfo = data
-        })
-      } else {
-        me.apiInfo = {
-          ID: 0,
-          Name: '',
-          Type: 0,
-          Desc: '',
-          GroupID: 0,
-          DevUser: '', // 开发人员
-          ServiceHostType: 0, // 服务Host类型
-          ServiceDiscoveryName: '', // 服务发现注册的服务名
-          ValidateType: 0, // 验证类型
-          Version: '', // Api 版本
-          ApiPath: '', // API请求路径
-          SupportProtocol: 0, // 支持协议 1.http 2.rpc
-          ReqMethod: 0, // 请求方式 http 协议支持1.get 2.post 3.put 4.delete rpc 协议支持 5.jsonrpc
-          TargetApis: '', // 目标api服务 [{"TargetKey":"","TargetUrl":"","CallMethod":"","CallName":"","Weight":0,"Status":0,"Timeout":0}]
-          IsUseMock: 0, // 是否启用Mock 0:不启用；1:启用
-          MockData: '', // mock请求返回数据
-          Status: 0, // 状态 0:是初始化 1:是有效 -1:是无效
-          RawResponseFlag: 0, // 是否返回原始响应字符串  0:不返回；1:返回
-          ResultType: 0, // 返回ContentType 1.json 2.文本 3.二进制 4.xml 5.html
-          ResultSample: '', // 返回结果示例
-          FailResultSample: '', // 失败返回结果示例
-          CreateUser: 0, // 创建人
-          CreateTime: 0// 创建时间
-        }
-      }
     }
   },
   mounted () {

@@ -70,6 +70,22 @@ class httpRequest {
       // timeout: 2000,
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
+      },
+      // 处理上传进度事件
+      onUploadProgress: function (progressEvent) {
+        // Do whatever you want with the native progress event
+      },
+
+      // 处理下载进度事件
+      onDownloadProgress: function (progressEvent) {
+        // Do whatever you want with the native progress event
+      },
+      // 设置http响应内容的最大长度
+      maxContentLength: 2000,
+      // 定义可获得的http响应状态码
+      // return true、设置为null或者undefined，promise将resolved,否则将rejected
+      validateStatus: function (status) {
+        return status >= 200 && status < 300 // default
       }
     }
     return Axios.create(conf)
