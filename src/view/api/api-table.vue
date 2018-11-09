@@ -1,7 +1,7 @@
 <template>
   <div>
     <Card>
-      <tables ref="tables" editable searchable btnAdd  v-model="tableData"
+      <tables ref="tables" editable searchable btnAdd page v-model="tableData"
       :columns="columns"
       :totalData="totalData"
       :currentIndex="pageIndex"
@@ -12,7 +12,7 @@
       @on-page-size-change='handlePageSizeChange'
       @on-delete="handleDelete"/>
     </Card>
-    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50" z-index="0">
+    <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50" :z-index="0">
         <div>
           <Row>
             <Col :xs="24" >
@@ -27,177 +27,178 @@
           </Row>
           <Row>
               <Col :xs="24">
-              <Card title="基本信息" v-show="stepIndex===0">
-                  <Form ref="apiInfo" class="steps" :model="apiInfo" :label-width="180">
-                    <Form-item label="API名称" prop="Name" >
-                        <Row>
-                            <Col span="18">
-                              <Input v-model="apiInfo.Name" placeholder="API名称..."></Input>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="API简介" prop="Desc">
-                        <Row>
-                            <Col span="18">
-                              <Input type="textarea" v-model="apiInfo.Desc" placeholder="API简介..."></Input>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="所属应用" prop="BelongApps">
-                        <Row>
-                            <Col span="18">
-                            <Select v-model="apiInfo.BelongApps"
-                              multiple
-                              :loading="appInfoLoading">
-                          <Option v-for="(option,index) in appInfoOption" :value="option.value" :key="index">{{ option.label }}</Option>
-                      </Select>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="所属分组" prop="GroupID">
-                        <Row>
-                            <Col span="18">
-                            <Select v-model="apiInfo.GroupID"
-                            :loading="groupLoading">
-                                <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
-                            </Select>
-                            </Col>
-                            <Col>
+                  <Card title="基本信息" v-show="stepIndex===0">
+                    <Form ref="apiInfoStep1" class="steps" :model="apiInfo" :rules="apiInfoStep1Validate" :label-width="180">
+                        <Form-item label="API名称" prop="Name" >
+                            <Row>
+                                <Col span="18">
+                                  <Input v-model="apiInfo.Name" placeholder="API名称..."></Input>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="API简介" prop="Desc">
+                            <Row>
+                                <Col span="18">
+                                  <Input type="textarea" v-model="apiInfo.Desc" placeholder="API简介..."></Input>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="所属应用" prop="BelongApps">
+                            <Row>
+                                <Col span="18">
+                                <Select v-model="apiInfo.BelongApps"
+                                  multiple
+                                  :loading="appInfoLoading">
+                              <Option v-for="(option,index) in appInfoOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                          </Select>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="所属分组" prop="GroupID">
+                            <Row>
+                                <Col span="18">
+                                <Select v-model="apiInfo.GroupID"
+                                :loading="groupLoading">
+                                    <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                                </Select>
+                                </Col>
+                                <Col>
 
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="验证类型" prop="ValidateType">
-                        <Row>
-                            <Col span="18">
-                            <Select v-model="apiInfo.ValidateType" >
-                              <Option v-for="(option,index) in validateTypeOption" :value="option.value" :key="index">{{ option.label }}</Option>
-                            </Select>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="开发人员" prop="DevUser">
-                        <Row>
-                            <Col span="18">
-                            <Input v-model="apiInfo.DevUser" placeholder="开发人员..."></Input>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="API状态" prop="Status">
-                        <Row>
-                            <Col span="18">
-                            <Select v-model="apiInfo.Status" >
-                                <Option v-for="item in statusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                    <Form-item label="是否返回原始响应字符串" prop="RawResponseFlag">
-                        <Row>
-                            <Col span="18">
-                              <i-Switch v-model="apiInfo.RawResponseFlag" :true-value="1" :false-value="0">
-                                <span slot="open">是</span>
-                                <span slot="close">否</span>
-                              </i-Switch>
-                            </Col>
-                        </Row>
-                    </Form-item>
-                </Form>
-              </Card>
-              <Card title="定义API请求" v-show="stepIndex===1">
-                  <Form ref="apiInfo" :model="apiInfo" :label-width="120">
-                      <Form-item label="服务Host类型" prop="ServiceHostType">
-                          <Row>
-                              <Col span="18">
-                                  <Select v-model="apiInfo.ServiceHostType" >
-                                    <Option v-for="item in serviceHostTypeOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                  </Select>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="服务注册名称" prop="ServiceDiscoveryName">
-                          <Row>
-                              <Col span="18">
-                              <Input v-model="apiInfo.ServiceDiscoveryName" placeholder="服务注册名称..."></Input>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="请求路径" prop="ApiPath">
-                          <Row>
-                              <Col span="18">
-                              <Input v-model="apiInfo.ApiPath" placeholder="请求路径..."></Input>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="支持协议" prop="SupportProtocol">
-                          <Row>
-                              <Col span="18">
-                                  <Select v-model="apiInfo.SupportProtocol"   @on-change="handleSupportProtocolChange">
-                                    <Option v-for="item in supportProtocolOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                  </Select>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="请求方式" prop="ReqMethod">
-                          <Row>
-                              <Col span="18">
-                                  <Select v-model="apiInfo.ReqMethod">
-                                      <Option v-for="item in ReqMethodOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                  </Select>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="是否启用Mock" prop="IsUseMock">
-                          <Row>
-                              <Col span="18">
-                                  <i-Switch size="large" v-model="apiInfo.IsUseMock"  :true-value="1" :false-value="0">
-                                      <span slot="open" >启用</span>
-                                      <span slot="close">关闭</span>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="验证类型" prop="ValidateType">
+                            <Row>
+                                <Col span="18">
+                                <Select v-model="apiInfo.ValidateType" >
+                                  <Option v-for="(option,index) in validateTypeOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                                </Select>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="开发人员" prop="DevUser">
+                            <Row>
+                                <Col span="18">
+                                <Input v-model="apiInfo.DevUser" placeholder="开发人员..."></Input>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="API状态" prop="Status">
+                            <Row>
+                                <Col span="18">
+                                <Select v-model="apiInfo.Status" >
+                                    <Option v-for="item in statusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                </Select>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                        <Form-item label="是否返回原始响应字符串" prop="RawResponseFlag">
+                            <Row>
+                                <Col span="18">
+                                  <i-Switch v-model="apiInfo.RawResponseFlag" :true-value="1" :false-value="0">
+                                    <span slot="open">是</span>
+                                    <span slot="close">否</span>
                                   </i-Switch>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="Mock请求返回数据" prop="MockData" v-show="apiInfo.IsUseMock===1">
-                          <Row>
-                              <Col span="18">
-                                  <Input type="textarea" v-model="apiInfo.MockData" :rows="2"></Input>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                  </Form>
-              </Card>
-              <Card title="定义API后端服务" v-show="stepIndex===2">
-                  <Form ref="apiInfo" :model="apiInfo"  :label-width="120">
-                      <Form-item label="接口类型" prop="Type">
-                          <Row>
-                              <Col span="18">
-                                  <Select v-model="apiInfo.Type" filterable >
-                                      <Option v-for="item in typeOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                  </Select>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                      <Form-item label="服务地址" prop="TargetApis">
-                          <Row>
-                              <Col span="18">
-                                  <Table ref="tables" :data="targetApiTableData" :columns="targetApiColumns"/>
-                                  <Button type="primary" @click="handleAddTargetApiInfo()">添加服务地址</Button>
-                              </Col>
-                          </Row>
-                      </Form-item>
-                  </Form>
-              </Card>
+                                </Col>
+                            </Row>
+                        </Form-item>
+                    </Form>
+                  </Card>
+                  <Card title="定义API请求" v-show="stepIndex===1">
+                    <Form ref="apiInfoStep2" class="steps" :model="apiInfo" :rules="apiInfoStep2Validate" :label-width="180">
+                          <Form-item label="服务Host类型" prop="ServiceHostType">
+                              <Row>
+                                  <Col span="18">
+                                      <Select v-model="apiInfo.ServiceHostType" >
+                                        <Option v-for="item in serviceHostTypeOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                      </Select>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="服务注册名称" prop="ServiceDiscoveryName">
+                              <Row>
+                                  <Col span="18">
+                                  <Input v-model="apiInfo.ServiceDiscoveryName" placeholder="服务注册名称..."></Input>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="请求路径" prop="ApiPath">
+                              <Row>
+                                  <Col span="18">
+                                  <Input v-model="apiInfo.ApiPath" placeholder="请求路径..."></Input>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="支持协议" prop="SupportProtocol">
+                              <Row>
+                                  <Col span="18">
+                                      <Select v-model="apiInfo.SupportProtocol"   @on-change="handleSupportProtocolChange">
+                                        <Option v-for="item in supportProtocolOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                      </Select>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="请求方式" prop="ReqMethod">
+                              <Row>
+                                  <Col span="18">
+                                      <Select v-model="apiInfo.ReqMethod">
+                                          <Option v-for="item in ReqMethodOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                      </Select>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="是否启用Mock" prop="IsUseMock">
+                              <Row>
+                                  <Col span="18">
+                                      <i-Switch size="large" v-model="apiInfo.IsUseMock"  :true-value="1" :false-value="0">
+                                          <span slot="open" >启用</span>
+                                          <span slot="close">关闭</span>
+                                      </i-Switch>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="Mock请求返回数据" prop="MockData" v-show="apiInfo.IsUseMock===1">
+                              <Row>
+                                  <Col span="18">
+                                      <Input type="textarea" v-model="apiInfo.MockData" :rows="2"></Input>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                    </Form>
+                  </Card>
+                  <Card title="定义API后端服务" v-show="stepIndex===2">
+                    <Form ref="apiInfoStep3" class="steps" :model="apiInfo" :rules="apiInfoStep3Validate" :label-width="100">
+                          <Form-item label="接口类型" prop="Type">
+                              <Row>
+                                  <Col span="8">
+                                      <Select v-model="apiInfo.Type" filterable >
+                                          <Option v-for="item in typeOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                      </Select>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                          <Form-item label="服务地址" prop="TargetApis">
+                              <Row>
+                                  <Col span="22">
+                                      <Table ref="tables" :data="targetApiTableData" :columns="targetApiColumns"/>
+                                      <Button type="primary" @click="handleAddTargetApiInfo()">添加服务地址</Button>
+                                  </Col>
+                              </Row>
+                          </Form-item>
+                    </Form>
+                  </Card>
+
               </Col>
           </Row>
         </div>
         <div slot="footer" style="text-align:center">
           <Button @click="prevStep('apiInfo')"  :loading="loading" v-show="stepIndex>0">上一步</Button>
-          <Button @click="nextStep('apiInfo')"  :loading="loading" v-show="stepIndex<2">下一步</Button>
-          <Button type="primary" @click="handleSubmit('apiInfo')"  :loading="loading">保 存</Button>
+          <Button type="primary" @click="nextStep('apiInfo')"  :loading="loading" v-show="stepIndex<2">下一步</Button>
+          <Button type="primary" @click="handleSubmit('apiInfo')"  v-show="stepIndex===2" :loading="loading">保 存</Button>
           <Button  @click="cancelApiInfo('targetApiInfo')">关 闭</Button>
         </div>
     </Modal>
-    <Modal title="服务地址" :mask-closable="false" v-model="modalShow" width="30" z-index="100">
+    <Modal title="服务地址" :mask-closable="false" v-model="modalShow" width="30" :z-index="100">
           <Form ref="targetApiInfo" :model="targetApiInfo" :label-width="120">
                 <Form-item label="服务地址" prop="TargetUrl">
                     <Row>
@@ -244,7 +245,7 @@ import Tables from '_c/tables'
 import { Message } from 'iview'
 import { getTop10ByKey } from '@/api/api-group'
 import { getAppInfoSelectDataByKey } from '@/api/appInfo'
-import { add, update, getList, getAPIInfoById } from '@/api/apiInfo'
+import { add, update, del, getList, getAPIInfoById } from '@/api/apiInfo'
 export default {
   name: 'api-table',
   components: {
@@ -309,7 +310,7 @@ export default {
                   },
                   on: {
                     'click': (data) => {
-
+                      this.handleDelete(this.tableData[params.index])
                     }
                   }
                 }, '删除')
@@ -348,15 +349,26 @@ export default {
         CreateTime: 0// 创建时间
 
       },
-      apiRuleValidate: {
+      apiInfoStep1Validate: {
         Name: [
           { required: true, message: 'api名称不能为空！', trigger: 'blur' }
         ],
         Desc: [
           { required: true, message: '请输入api简介！', trigger: 'blur' },
-          { type: 'string', min: 20, message: 'api简介不能小于20字！', trigger: 'blur' }
+          { type: 'string', min: 10, message: 'api简介不能小于10字！', trigger: 'blur' }
         ]
       },
+      apiInfoStep2Validate: {
+        ServiceDiscoveryName: [
+          { required: true, message: '服务发现注册的服务名不能为空！', trigger: 'blur' }
+        ],
+        ApiPath: [
+          { required: true, message: '请求路径不能为空！', trigger: 'blur' }
+        ]
+      },
+      apiInfoStep3Validate: {
+      },
+
       totalData: 0,
       pageIndex: 1,
       pageSize: 10,
@@ -374,11 +386,12 @@ export default {
       groupOption: [],
       appInfoLoading: false,
       appInfoOption: [],
-      ReqMethodOption: [],
+      ReqMethodOption: [{value: 1, label: 'HttpGet'}, {value: 2, label: 'HttpPost'}, {value: 3, label: 'HttpPut'}, {value: 4, label: 'HttpDelete'}, {value: 5, label: 'JsonRPC'}],
       modalShow: false,
       callNameShow: false,
       mockDataShow: false,
       targetApiInfo: {
+        ID: 0,
         TargetKey: '',
         TargetUrl: '',
         CallName: '',
@@ -389,9 +402,9 @@ export default {
       },
       targetApiColumns: [
         {title: '服务地址', key: 'TargetUrl'},
-        {title: '调用方法', key: 'CallName'},
         { title: '调用方式',
           key: 'CallMethod',
+          width: 100,
           render: (h, params) => {
             const row = params.row
             const v = row.CallMethod
@@ -409,11 +422,12 @@ export default {
             }, text)
           }
         },
-        {title: '权重', key: 'Weight'},
+        {title: '调用方法', key: 'CallName', width: 100},
+        {title: '权重', key: 'Weight', width: 60},
         {title: '操作',
+          width: 100,
           key: 'handle',
           align: 'center',
-          width: 80,
           render: (h, params) => {
             return h('div', [
               h('a', {
@@ -457,13 +471,16 @@ export default {
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
       }
-      getList(query).then(data => {
-        if (data.totalCount === 0) {
-          this.tableData = []
-          this.totalCount = 0
-        } else {
-          this.tableData = data.pageData
-          this.totalData = data.totalCount
+      getList(query).then(res => {
+        if (res.success) {
+          var data = res.data
+          if (data.totalCount === 0) {
+            this.tableData = []
+            this.totalCount = 0
+          } else {
+            this.tableData = data.pageData
+            this.totalData = data.totalCount
+          }
         }
       })
     },
@@ -482,8 +499,15 @@ export default {
       me.stepIndex = 0
       if (row) {
         var id = row.ID
-        getAPIInfoById({ID: id}).then((data) => {
-          me.apiInfo = data
+        getAPIInfoById({ID: id}).then((res) => {
+          if (res.success) {
+            var data = res.data
+            me.apiInfo = data
+            me.targetApiTableData = JSON.parse(data.TargetApis)
+            for (var i = 0; i < me.targetApiTableData.length; i++) {
+              me.targetApiTableData[i].ID = (i + 1)
+            }
+          }
         })
       } else {
         me.apiInfo = {
@@ -511,10 +535,29 @@ export default {
           CreateUser: 0, // 创建人
           CreateTime: 0// 创建时间
         }
+        me.targetApiTableData = []
+        me.targetApiInfo = {
+          ID: 0,
+          TargetKey: '',
+          TargetUrl: '',
+          CallName: '',
+          CallMethod: 0,
+          Weight: '',
+          Timeout: 0,
+          Status: 0
+        }
       }
     },
-    handleDelete (params) {
-      console.log(params)
+    handleDelete (row) {
+      var me = this
+      me.loading = true
+      del({ID: row.ID}).then(res => {
+        if (res.success) {
+          me.loading = false
+          me.loadData()
+          Message.success('删除成功！')
+        }
+      })
     },
     handlePageChange (index) {
       this.pageIndex = index
@@ -527,15 +570,18 @@ export default {
     groupRemoteLoad (query) {
       var me = this
       me.groupLoading = true
-      getTop10ByKey(query).then(data => {
-        me.groupLoading = false
-        const list = data.map(item => {
-          return {
-            value: item.ID,
-            label: item.Name
-          }
-        })
-        me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      getTop10ByKey(query).then(res => {
+        if (res.success) {
+          var data = res.data
+          me.groupLoading = false
+          const list = data.map(item => {
+            return {
+              value: item.ID,
+              label: item.Name
+            }
+          })
+          me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+        }
       })
       // if (query !== '') {
       // } else {
@@ -545,43 +591,66 @@ export default {
     loadGroupOption (key) {
       var me = this
       me.groupLoading = true
-      getTop10ByKey(key).then(data => {
-        me.groupLoading = false
-        const list = data.map(item => {
-          return {
-            value: item.ID,
-            label: item.Name
-          }
-        })
-        me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      getTop10ByKey(key).then(res => {
+        if (res.success) {
+          var data = res.data
+          me.groupLoading = false
+          const list = data.map(item => {
+            return {
+              value: item.ID,
+              label: item.Name
+            }
+          })
+          me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+        }
       })
     },
     loadAppInfoOption (query) {
       var me = this
       me.appInfoLoading = true
-      getAppInfoSelectDataByKey(query).then(data => {
-        me.appInfoLoading = false
-        const list = data.map(item => {
-          return {
-            value: item.Value,
-            label: item.Label
-          }
-        })
-        me.appInfoOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      getAppInfoSelectDataByKey(query).then(res => {
+        if (res.success) {
+          var data = res.data
+          me.appInfoLoading = false
+          const list = data.map(item => {
+            return {
+              value: item.Value,
+              label: item.Label
+            }
+          })
+
+          me.appInfoOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+        }
       })
     },
+    // 下一步
     nextStep (name) {
       var me = this
       this.loading = true
-      this.$refs[name].validate(valid => {
-        if (valid) {
-          me.stepIndex++
-          if (me.stepIndex >= 2) {
+      if (me.stepIndex === 0) {
+        this.$refs.apiInfoStep1.validate((valid) => {
+          this.loading = false
+          if (valid) {
+            me.stepIndex = 1
+          }
+        })
+      } else if (me.stepIndex === 1) {
+        this.$refs.apiInfoStep2.validate((valid) => {
+          this.loading = false
+          if (valid) {
             me.stepIndex = 2
           }
-        }
-        this.loading = false
-      })
+        })
+      }
+      // this.$refs[name].validate(valid => {
+      //   if (valid) {
+      //     me.stepIndex++
+      //     if (me.stepIndex >= 2) {
+      //       me.stepIndex = 2
+      //     }
+      //   }
+      //   this.loading = false
+      // })
     },
     // 上一步
     prevStep (name) {
@@ -600,23 +669,28 @@ export default {
       }
     },
     handleSubmit (name) {
-      this.loading = true
-      this.apiInfo.TargetApis = JSON.stringify(this.targetApiTableData)
-      this.$refs[name].validate((valid) => {
+      var me = this
+      me.loading = true
+      me.apiInfo.TargetApis = JSON.stringify(me.targetApiTableData)
+      me.$refs.apiInfoStep3.validate((valid) => {
         if (valid) {
-          if (this.apiInfo.ID === 0) {
-            add(this.apiInfo).then(data => {
-              this.loading = false
-              this.loadData()
-              this.createModalShow = false
-              Message.success('保存成功！')
+          if (me.apiInfo.ID === 0) {
+            add(me.apiInfo).then(res => {
+              if (res.success) {
+                me.loading = false
+                me.loadData()
+                me.createModalShow = false
+                Message.success('保存成功！')
+              }
             })
           } else {
-            update(this.apiInfo).then(data => {
-              this.loading = false
-              this.loadData()
-              this.createModalShow = false
-              Message.success('保存成功！')
+            update(me.apiInfo).then(res => {
+              if (res.success) {
+                me.loading = false
+                me.loadData()
+                me.createModalShow = false
+                Message.success('保存成功！')
+              }
             })
           }
         }
@@ -636,11 +710,16 @@ export default {
     },
     handleDelTargetApiInfo (row) {
       var me = this
-      for (var i = 0; i < me.targetApiTableData.length; i++) { me.targetApiTableData.splice(1, 1) }
+      for (var i = 0; i < me.targetApiTableData.length; i++) {
+        if (me.targetApiTableData[i].ID === row.ID) {
+          me.targetApiTableData.splice(i, 1)
+        }
+      }
     },
     openTargetApiInfo (data) {
       if (!data) {
         this.targetApiInfo = {
+          ID: 0,
           TargetKey: '',
           TargetUrl: '',
           CallName: '',
@@ -651,6 +730,7 @@ export default {
         }
       } else {
         this.targetApiInfo = {
+          ID: data.ID,
           TargetKey: data.TargetKey,
           TargetUrl: data.TargetUrl,
           CallName: data.CallName,
@@ -664,7 +744,16 @@ export default {
     savetargetApiInfo (name) {
       var me = this
       this.$refs[name].validate((valid) => {
-        me.targetApiTableData.push(me.targetApiInfo)
+        if (me.targetApiInfo.ID === 0) {
+          me.targetApiInfo.ID = (me.targetApiTableData.length + 1)
+          me.targetApiTableData.push(me.targetApiInfo)
+        } else {
+          for (var i = 0; i < me.targetApiTableData.length; i++) {
+            if (me.targetApiTableData[i].ID === me.targetApiInfo.ID) {
+              me.targetApiTableData.splice(i, 1, me.targetApiInfo)
+            }
+          }
+        }
         this.modalShow = false
       })
     },

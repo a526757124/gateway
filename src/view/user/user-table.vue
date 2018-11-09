@@ -189,13 +189,16 @@ export default {
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
       }
-      getList(query).then(data => {
-        if (data.totalCount === 0) {
-          this.tableData = []
-          this.totalCount = 0
-        } else {
-          this.tableData = data.pageData
-          this.totalData = data.totalCount
+      getList(query).then(res => {
+        if (res.success) {
+          var data = res.data
+          if (data.totalCount === 0) {
+            this.tableData = []
+            this.totalCount = 0
+          } else {
+            this.tableData = data.pageData
+            this.totalData = data.totalCount
+          }
         }
       })
     },

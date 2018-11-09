@@ -162,19 +162,23 @@ export default {
         if (valid) {
           if (data.ID > 0) {
             update(data).then(res => {
-              me.$Message.success('Success!')
-              me.loadData()
-              this.createModalShow = false
+              if (res.success) {
+                me.$Message.success('保存成功!')
+                me.loadData()
+                this.createModalShow = false
+              }
             })
           } else {
             add(data).then(res => {
-              me.$Message.success('Success!')
-              me.loadData()
-              this.createModalShow = false
+              if (res.success) {
+                me.$Message.success('保存成功!')
+                me.loadData()
+                this.createModalShow = false
+              }
             })
           }
         } else {
-          this.$Message.error('Fail!')
+          this.$Message.error('校验失败!')
         }
       })
     },
@@ -192,13 +196,16 @@ export default {
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
       }
-      getList(query).then(data => {
-        if (data.totalCount === 0) {
-          this.tableData = []
-          this.totalCount = 0
-        } else {
-          this.tableData = data.pageData
-          this.totalData = data.totalCount
+      getList(query).then(res => {
+        if (res.success) {
+          var data = res.data
+          if (data.totalCount === 0) {
+            this.tableData = []
+            this.totalCount = 0
+          } else {
+            this.tableData = data.pageData
+            this.totalData = data.totalCount
+          }
         }
       })
     },

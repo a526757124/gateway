@@ -116,6 +116,15 @@ export default {
         name: name
       })
     },
+    turnToPageByPath (path) {
+      if (name.indexOf('isTurnByHref_') > -1) {
+        window.open(name.split('_')[1])
+        return
+      }
+      this.$router.push({
+        path: path
+      })
+    },
     handleCollapsedChange (state) {
       this.collapsed = state
     },
@@ -126,7 +135,8 @@ export default {
       else if (this.$route.name === name) this.$router.push({ name: nextName })
     },
     handleClick (item) {
-      this.turnToPage(item.name)
+      // this.turnToPage(item.name)
+      this.turnToPageByPath(item.path)
     }
   },
   watch: {
