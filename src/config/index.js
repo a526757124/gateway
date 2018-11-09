@@ -14,7 +14,7 @@ export default {
    */
   baseUrl: {
     dev: 'http://localhost:10001',
-    pro: 'http://localhost:10001'
+    pro: 'http://118.31.32.168:10001'
   },
   /**
    * @description 默认打开的首页的路由name值，默认为home
