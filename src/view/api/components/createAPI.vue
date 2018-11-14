@@ -34,11 +34,8 @@
                       <Col span="18">
                       <Select v-model="apiInfo.BelongAppID"
                       multiple
-                      filterable
-                      remote
-                      :remote-method="groupRemoteLoad"
-                      :loading="groupLoading">
-                          <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
+                      :loading="appInfoLoading">
+                          <Option v-for="(option,index) in appInfoOption" :value="option.value" :key="index">{{ option.label }}</Option>
                       </Select>
                       </Col>
                   </Row>
@@ -47,9 +44,6 @@
                   <Row>
                       <Col span="18">
                       <Select v-model="apiInfo.GroupID"
-                      filterable
-                      remote
-                      :remote-method="groupRemoteLoad"
                       :loading="groupLoading">
                           <Option v-for="(option,index) in groupOption" :value="option.value" :key="index">{{ option.label }}</Option>
                       </Select>
@@ -235,6 +229,7 @@
 </template>
 <script>
 import { getTop10ByKey } from '@/api/api-group'
+import { getAppInfoSelectDataByKey } from '@/api/appInfo'
 import { add, getAPIInfoById } from '@/api/apiInfo'
 export default {
   name: 'createAPI',
@@ -257,6 +252,8 @@ export default {
       loading: false,
       groupLoading: false,
       groupOption: [],
+      appInfoLoading: false,
+      appInfoOption: [],
       ReqMethodOption: [],
       modalShow: false,
       callNameShow: false,
@@ -382,6 +379,20 @@ export default {
         me.groupOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
       })
     },
+    loadAppInfoOption (query) {
+      var me = this
+      me.appInfoLoading = true
+      getAppInfoSelectDataByKey(query).then(data => {
+        me.appInfoLoading = false
+        const list = data.map(item => {
+          return {
+            value: item.Value,
+            label: item.Label
+          }
+        })
+        me.appInfoOption = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      })
+    },
     nextStep (name, index) {
       var me = this
       this.loading = true
@@ -477,6 +488,7 @@ export default {
     },
     init () {
       this.groupRemoteLoad('')
+      this.loadAppInfoOption('')
     },
     onSaveAfter (data) {
       this.$emit('on-save-after', data)

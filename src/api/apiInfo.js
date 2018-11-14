@@ -3,8 +3,8 @@ import axios from '@/libs/api.request'
 export const getAPIInfoById = (data) => {
   return axios.request({
     url: '/APIInfo/GetAPIInfoById',
-    data: data,
-    method: 'post'
+    params: data,
+    method: 'get'
   })
 }
 

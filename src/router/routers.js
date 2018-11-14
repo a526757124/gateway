@@ -1,13 +1,19 @@
-import Main from '@/view/main'
+import Main from '@/components/main'
 import parentView from '@/components/parent-view'
 
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
+ *  title: { String|Number|Function }
+ *         显示在侧边栏、面包屑和标签栏的文字
+ *         使用'{{ 多语言字段 }}'形式结合多语言使用，例子看多语言的路由配置;
+ *         可以传入一个回调函数，参数是当前路由对象，例子看动态路由和带参路由
+ *  hideInBread: (false) 设为true后此级路由将不会出现在面包屑中，示例看QQ群路由配置
  *  hideInMenu: (false) 设为true后在左侧菜单不会显示该页面选项
- *  notCache: (false) 设为true后页面不会缓存
+ *  notCache: (false) 设为true后页面在切换标签后不会缓存，如果需要缓存，无需设置这个字段，而且需要设置页面组件name属性和路由配置的name一致
  *  access: (null) 可访问该页面的权限数组，当前路由设置的权限会影响子路由
  *  icon: (-) 该页面在左侧菜单、面包屑和标签导航处显示的图标，如果是自定义图标，需要在图标名称前加下划线'_'
+ *  beforeCloseName: (-) 设置该字段，则在关闭当前tab页时会去'@/router/before-close.js'里寻找该字段名对应的方法，作为关闭前的钩子函数
  * }
  */
 
@@ -23,12 +29,11 @@ export default [
   },
   {
     path: '/',
-    name: 'home',
+    name: '_home',
     redirect: '/home',
     component: Main,
     meta: {
-      hideInMenu: false,
-      title: '首页',
+      hideInMenu: true,
       notCache: true
     },
     children: [
@@ -36,10 +41,10 @@ export default [
         path: '/home',
         name: 'home',
         meta: {
-          hideInMenu: false,
-          icon: 'logo-buffer',
+          hideInMenu: true,
           title: '首页',
-          notCache: true
+          notCache: true,
+          icon: 'md-home'
         },
         component: () => import('@/view/single-page/home')
       }
@@ -49,7 +54,8 @@ export default [
     path: '/application',
     name: 'application',
     meta: {
-      showAlways:true,
+      showAlways: true,
+      hideInBread: true,
       icon: 'logo-buffer',
       title: '应用管理'
     },
@@ -59,7 +65,6 @@ export default [
         path: 'application-table',
         name: 'application-table',
         meta: {
-          isBreadCrumb:true,//面包屑显示
           icon: 'logo-buffer',
           title: '应用列表'
         },
@@ -71,7 +76,8 @@ export default [
     path: '/api',
     name: 'api',
     meta: {
-      showAlways:true,
+      showAlways: true,
+      hideInBread: true,
       icon: 'logo-buffer',
       title: 'API管理'
     },
@@ -81,7 +87,6 @@ export default [
         path: '/api-group',
         name: 'api-group',
         meta: {
-          isBreadCrumb:true,//面包屑显示
           icon: 'logo-buffer',
           title: '分组列表'
         },
@@ -91,7 +96,6 @@ export default [
         path: '/api-table',
         name: 'api-table',
         meta: {
-          isBreadCrumb:true,//面包屑显示
           icon: 'logo-buffer',
           title: 'API列表'
         },
@@ -101,8 +105,7 @@ export default [
         path: '/api-create',
         name: 'api-create',
         meta: {
-          isBreadCrumb:true,//面包屑显示
-          hideInMenu:true,
+          hideInMenu: true,
           icon: 'logo-buffer',
           title: '创建API'
         },
@@ -114,7 +117,8 @@ export default [
     path: '/user',
     name: 'user',
     meta: {
-      showAlways:true,
+      showAlways: true,
+      hideInBread: true,
       icon: 'logo-buffer',
       title: '用户管理'
     },
@@ -124,7 +128,6 @@ export default [
         path: 'user-table',
         name: 'user-table',
         meta: {
-          
           icon: 'logo-buffer',
           title: '用户列表'
         },
@@ -136,7 +139,8 @@ export default [
     path: '/syssetting',
     name: 'syssetting',
     meta: {
-      showAlways:true,
+      showAlways: true,
+      hideInBread: true,
       icon: 'logo-buffer',
       title: '系统设置'
     },
@@ -163,10 +167,62 @@ export default [
     ]
   },
   {
+    path: '',
+    name: 'doc',
+    meta: {
+      title: '文档',
+      hideInMenu: true,
+      href: 'https://lison16.github.io/iview-admin-doc/#/',
+      icon: 'ios-book'
+    }
+  },
+  {
+    path: '/join',
+    name: 'join',
+    component: Main,
+    meta: {
+      hideInMenu: true,
+      hideInBread: true
+    },
+    children: [
+      {
+        path: 'join_page',
+        name: 'join_page',
+        meta: {
+          icon: '_qq',
+          hideInMenu: true,
+          title: 'QQ群'
+        },
+        component: () => import('@/view/join-page.vue')
+      }
+    ]
+  },
+  {
+    path: '/message',
+    name: 'message',
+    component: Main,
+    meta: {
+      hideInBread: true,
+      hideInMenu: true
+    },
+    children: [
+      {
+        path: 'message_page',
+        name: 'message_page',
+        meta: {
+          icon: 'md-notifications',
+          title: '消息中心'
+        },
+        component: () => import('@/view/single-page/message/index.vue')
+      }
+    ]
+  },
+  {
     path: '/components',
     name: 'components',
     meta: {
       icon: 'logo-buffer',
+      hideInMenu: true,
       title: '组件'
     },
     component: Main,
@@ -176,15 +232,37 @@ export default [
         name: 'count_to_page',
         meta: {
           icon: 'md-trending-up',
+          hideInMenu: true,
           title: '数字渐变'
         },
         component: () => import('@/view/components/count-to/count-to.vue')
+      },
+      {
+        path: 'drag_list_page',
+        name: 'drag_list_page',
+        meta: {
+          icon: 'ios-infinite',
+          hideInMenu: true,
+          title: '拖拽列表'
+        },
+        component: () => import('@/view/components/drag-list/drag-list.vue')
+      },
+      {
+        path: 'cropper_page',
+        name: 'cropper_page',
+        meta: {
+          icon: 'md-crop',
+          hideInMenu: true,
+          title: '图片裁剪'
+        },
+        component: () => import('@/view/components/cropper/cropper.vue')
       },
       {
         path: 'tables_page',
         name: 'tables_page',
         meta: {
           icon: 'md-grid',
+          hideInMenu: true,
           title: '多功能表格'
         },
         component: () => import('@/view/components/tables/tables.vue')
@@ -194,6 +272,7 @@ export default [
         name: 'split_pane_page',
         meta: {
           icon: 'md-pause',
+          hideInMenu: true,
           title: '分割窗口'
         },
         component: () => import('@/view/components/split-pane/split-pane.vue')
@@ -203,6 +282,7 @@ export default [
         name: 'markdown_page',
         meta: {
           icon: 'logo-markdown',
+          hideInMenu: true,
           title: 'Markdown编辑器'
         },
         component: () => import('@/view/components/markdown/markdown.vue')
@@ -212,6 +292,7 @@ export default [
         name: 'editor_page',
         meta: {
           icon: 'ios-create',
+          hideInMenu: true,
           title: '富文本编辑器'
         },
         component: () => import('@/view/components/editor/editor.vue')
@@ -221,6 +302,7 @@ export default [
         name: 'icons_page',
         meta: {
           icon: '_bear',
+          hideInMenu: true,
           title: '自定义图标'
         },
         component: () => import('@/view/components/icons/icons.vue')
@@ -232,6 +314,7 @@ export default [
     name: 'update',
     meta: {
       icon: 'md-cloud-upload',
+      hideInMenu: true,
       title: '数据上传'
     },
     component: Main,
@@ -241,6 +324,7 @@ export default [
         name: 'update_table_page',
         meta: {
           icon: 'ios-document',
+          hideInMenu: true,
           title: '上传Csv'
         },
         component: () => import('@/view/update/update-table.vue')
@@ -250,6 +334,7 @@ export default [
         name: 'update_paste_page',
         meta: {
           icon: 'md-clipboard',
+          hideInMenu: true,
           title: '粘贴表格数据'
         },
         component: () => import('@/view/update/update-paste.vue')
@@ -257,10 +342,126 @@ export default [
     ]
   },
   {
+    path: '/excel',
+    name: 'excel',
+    meta: {
+      icon: 'ios-stats',
+      hideInMenu: true,
+      title: 'EXCEL导入导出'
+    },
+    component: Main,
+    children: [
+      {
+        path: 'upload-excel',
+        name: 'upload-excel',
+        meta: {
+          icon: 'md-add',
+          hideInMenu: true,
+          title: '导入EXCEL'
+        },
+        component: () => import('@/view/excel/upload-excel.vue')
+      },
+      {
+        path: 'export-excel',
+        name: 'export-excel',
+        meta: {
+          icon: 'md-download',
+          hideInMenu: true,
+          title: '导出EXCEL'
+        },
+        component: () => import('@/view/excel/export-excel.vue')
+      }
+    ]
+  },
+  {
+    path: '/tools_methods',
+    name: 'tools_methods',
+    meta: {
+      hideInMenu: true,
+      hideInBread: true
+
+    },
+    component: Main,
+    children: [
+      {
+        path: 'tools_methods_page',
+        name: 'tools_methods_page',
+        meta: {
+          icon: 'ios-hammer',
+          hideInMenu: true,
+          title: '工具方法',
+          beforeCloseName: 'before_close_normal'
+        },
+        component: () => import('@/view/tools-methods/tools-methods.vue')
+      }
+    ]
+  },
+  {
+    path: '/i18n',
+    name: 'i18n',
+    meta: {
+      hideInMenu: true,
+      hideInBread: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'i18n_page',
+        name: 'i18n_page',
+        meta: {
+          icon: 'md-planet',
+          hideInMenu: true,
+          title: 'i18n - {{ i18n_page }}'
+        },
+        component: () => import('@/view/i18n/i18n-page.vue')
+      }
+    ]
+  },
+  {
+    path: '/error_store',
+    name: 'error_store',
+    meta: {
+      hideInBread: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'error_store_page',
+        name: 'error_store_page',
+        meta: {
+          icon: 'ios-bug',
+          title: '错误收集'
+        },
+        component: () => import('@/view/error-store/error-store.vue')
+      }
+    ]
+  },
+  {
+    path: '/error_logger',
+    name: 'error_logger',
+    meta: {
+      hideInBread: true,
+      hideInMenu: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'error_logger_page',
+        name: 'error_logger_page',
+        meta: {
+          icon: 'ios-bug',
+          title: '错误收集'
+        },
+        component: () => import('@/view/single-page/error-logger.vue')
+      }
+    ]
+  },
+  {
     path: '/directive',
     name: 'directive',
     meta: {
-      hide: true
+      hideInMenu: true,
+      hideInBread: true
     },
     component: Main,
     children: [
@@ -268,6 +469,7 @@ export default [
         path: 'directive_page',
         name: 'directive_page',
         meta: {
+          hideInMenu: true,
           icon: 'ios-navigate',
           title: '指令'
         },
@@ -280,6 +482,7 @@ export default [
     name: 'multilevel',
     meta: {
       icon: 'md-menu',
+      hideInMenu: true,
       title: '多级菜单'
     },
     component: Main,
@@ -288,7 +491,8 @@ export default [
         path: 'level_2_1',
         name: 'level_2_1',
         meta: {
-          icon: 'arrow-graph-up-right',
+          icon: 'md-funnel',
+          hideInMenu: true,
           title: '二级-1'
         },
         component: () => import('@/view/multilevel/level-2-1.vue')
@@ -298,8 +502,9 @@ export default [
         name: 'level_2_2',
         meta: {
           access: ['super_admin'],
-          icon: 'arrow-graph-up-right',
+          icon: 'md-funnel',
           showAlways: true,
+          hideInMenu: true,
           title: '二级-2'
         },
         component: parentView,
@@ -308,7 +513,8 @@ export default [
             path: 'level_2_2_1',
             name: 'level_2_2_1',
             meta: {
-              icon: 'arrow-graph-up-right',
+              icon: 'md-funnel',
+              hideInMenu: true,
               title: '三级'
             },
             component: () => import('@/view/multilevel/level-2-2/level-3-1.vue')
@@ -319,11 +525,43 @@ export default [
         path: 'level_2_3',
         name: 'level_2_3',
         meta: {
-          icon: 'arrow-graph-up-right',
+          icon: 'md-funnel',
+          hideInMenu: true,
           title: '二级-3'
         },
         component: () => import('@/view/multilevel/level-2-3.vue')
+      }
+    ]
+  },
+  {
+    path: '/argu',
+    name: 'argu',
+    meta: {
+      hideInMenu: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'params/:id',
+        name: 'params',
+        meta: {
+          icon: 'md-flower',
+          title: route => `{{ params }}-${route.params.id}`,
+          notCache: true,
+          beforeCloseName: 'before_close_normal'
+        },
+        component: () => import('@/view/argu-page/params.vue')
       },
+      {
+        path: 'query',
+        name: 'query',
+        meta: {
+          icon: 'md-flower',
+          title: route => `{{ query }}-${route.query.id}`,
+          notCache: true
+        },
+        component: () => import('@/view/argu-page/query.vue')
+      }
     ]
   },
   {

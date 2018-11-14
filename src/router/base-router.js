@@ -13,7 +13,7 @@ export default [
   {
     path: '/',
     name: 'index',
-    // redirect: '/home',
+    redirect: '/home',
     component: Main,
     children: [
       {
