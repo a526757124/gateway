@@ -257,8 +257,21 @@ export default {
       addBtnTitle: '添加API',
       columns: [
         {title: '名称', key: 'Name', sortable: true, isSearchable: true},
-        {title: '类型', key: 'Type', isSearchable: true},
-        {title: '所属模块', key: 'GroupID', isSearchable: true},
+        {title: '类型',
+          key: 'Type',
+
+          render: (h, params) => {
+            const row = params.row
+            var text = ''
+            this.typeOption.map(m => {
+              if (m.value === row.Type) {
+                text = m.label
+              }
+            })
+            return h('span', {}, text)
+          }
+        },
+        {title: '开发人员', key: 'DevUser'},
         {title: '描述', key: 'Desc'},
         {title: '状态',
           key: 'Status',
@@ -367,6 +380,9 @@ export default {
         ]
       },
       apiInfoStep3Validate: {
+        Type: [
+          { required: true, message: '接口类型不能为空！', trigger: 'blur' }
+        ]
       },
 
       totalData: 0,

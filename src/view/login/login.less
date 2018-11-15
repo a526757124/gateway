@@ -1,16 +1,23 @@
 .login{
     width: 100%;
     height: 100%;
-    background-image: url('../../assets/images/login-bg.jpg');
+    background-image: url('../../assets/images/login-bg4.jpg');
     background-size: cover;
     background-position: center;
     position: relative;
+    text-align: center;
     &-con{
         position: absolute;
-        right: 160px;
-        top: 50%;
+        //right: 160px;
+        left:45%;
+        top: 45%;
         transform: translateY(-60%);
-        width: 300px;
+        width: 350px;
+        color: #FFF;
+        
+        .login-title{
+            font-size: 24px;
+        }
         &-header{
             font-size: 16px;
             font-weight: 300;
@@ -19,11 +26,33 @@
         }
         .form-con{
             padding: 10px 0 0;
+            
+        }
+        .ivu-form-item-content{
+            background:rgba(255,255,255,.3);
+            border-radius:5px;
+        }
+        .ivu-input-group-prepend{
+            background-color: transparent;
+            border:0;
+            color: #FFF;
+        }
+        .form-con input{
+            background-color: transparent;
+            border:0;
+            height: 38px;
+            
+        }
+        .ivu-input{
+            color: #FFF;
+        }
+        .form-con button{
+            height: 38px;
+            font-size: 14px;
         }
         .login-tip{
             font-size: 10px;
             text-align: center;
-            color: #c3c3c3;
         }
     }
 }

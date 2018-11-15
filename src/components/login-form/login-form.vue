@@ -11,11 +11,12 @@
       <Input type="password" v-model="form.password" placeholder="请输入密码">
         <span slot="prepend">
           <Icon :size="14" type="md-lock"></Icon>
+
         </span>
       </Input>
     </FormItem>
     <FormItem>
-      <Button @click="handleSubmit" type="primary" long>登录</Button>
+      <Button @click="handleSubmit" type="success" label="large" long ghost>登&nbsp;&nbsp;&nbsp;&nbsp;录</Button>
     </FormItem>
   </Form>
 </template>
@@ -43,7 +44,7 @@ export default {
   data () {
     return {
       form: {
-        userName: 'super_admin',
+        userName: '',
         password: ''
       }
     }
