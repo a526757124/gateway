@@ -1,6 +1,8 @@
 import axios from 'axios'
 import store from '@/store'
 // import { Spin } from 'iview'
+import Cookies from 'js-cookie'
+import { TOKEN_KEY } from '@/libs/util'
 const addErrorLog = errorInfo => {
   const { statusText, status, request: { responseURL } } = errorInfo
   let info = {
@@ -38,6 +40,13 @@ class HttpRequest {
       // 添加全局的loading...
       if (!Object.keys(this.queue).length) {
         // Spin.show() // 不建议开启，因为界面不友好
+      }
+      // if (store.state.token) {  // 判断是否存在token，如果存在的话，则每个http header都加上token
+      //   config.headers.Authorization = `token ${store.state.token}`;
+      // }
+      var token = Cookies.get(TOKEN_KEY)
+      if (token) {
+        config.headers.Authorization = `token ${token}`
       }
       this.queue[url] = true
       return config

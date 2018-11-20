@@ -38,9 +38,9 @@
                 </FormItem>
            </Form>
            <div slot="footer">
-                <Button type="primary" @click="handleSubmit('appInfo')">提交</Button>
+                <Button type="primary" @click="handleSubmit('appInfo')">保 存</Button>
                 <!-- <Button @click="handleReset('appInfo')" style="margin-left: 8px">重置</Button> -->
-                <Button @click="handleCancel()" style="margin-left: 8px">关闭</Button>
+                <Button @click="handleCancel()" style="margin-left: 8px">关 闭</Button>
             </div>
     </Modal>
   </div>
@@ -166,6 +166,9 @@ export default {
                 me.$Message.success('保存成功!')
                 me.loadData()
                 this.createModalShow = false
+              } else {
+                me.$Message.error(res.msg)
+                me.loadData()
               }
             })
           } else {
@@ -174,6 +177,9 @@ export default {
                 me.$Message.success('保存成功!')
                 me.loadData()
                 this.createModalShow = false
+              } else {
+                me.$Message.error(res.msg)
+                me.loadData()
               }
             })
           }
