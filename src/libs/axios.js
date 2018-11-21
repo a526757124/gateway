@@ -3,6 +3,7 @@ import store from '@/store'
 // import { Spin } from 'iview'
 import Cookies from 'js-cookie'
 import { TOKEN_KEY } from '@/libs/util'
+import { Message } from 'iview'
 const addErrorLog = errorInfo => {
   const { statusText, status, request: { responseURL } } = errorInfo
   let info = {
@@ -51,6 +52,7 @@ class HttpRequest {
       this.queue[url] = true
       return config
     }, error => {
+      Message.error('服务内部错误！')
       return Promise.reject(error)
     })
     // 响应拦截
@@ -60,6 +62,11 @@ class HttpRequest {
       // return { data, status }
       return res.data
     }, error => {
+      if (!error.response && error.message === 'Network Error') {
+        Message.error('网络异常，请稍后重试！')
+      } else {
+        Message.error('服务内部错误！')
+      }
       this.destroy(url)
       addErrorLog(error.response)
       return Promise.reject(error)
