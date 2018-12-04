@@ -122,6 +122,13 @@
                                   </Col>
                               </Row>
                           </Form-item>
+                          <Form-item label="版本" prop="Version">
+                              <Row>
+                                  <Col span="18">
+                                  <Input v-model="apiInfo.Version" placeholder="版本..."></Input>
+                                  </Col>
+                              </Row>
+                          </Form-item>
                           <Form-item label="请求路径" prop="ApiPath">
                               <Row>
                                   <Col span="18">
@@ -377,12 +384,15 @@ export default {
         ],
         ApiPath: [
           { required: true, message: '请求路径不能为空！', trigger: 'blur' }
+        ],
+        Version: [
+          { required: true, message: '版本不能为空！', trigger: 'blur' }
         ]
       },
       apiInfoStep3Validate: {
-        Type: [
-          { required: true, message: '接口类型不能为空！', trigger: 'blur' }
-        ]
+        // Type: [
+        //   { required: true, message: '接口类型不能为空！', trigger: 'blur' }
+        // ]
       },
 
       totalData: 0,
@@ -709,6 +719,8 @@ export default {
               }
             })
           }
+        } else {
+          me.loading = false
         }
       })
     },
