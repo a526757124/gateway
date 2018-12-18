@@ -71,17 +71,17 @@ import './index.less'
 export default {
   name: 'Tables',
   props: {
-    page:{
+    page: {
       type: Boolean,
       default: false
     },
-    addBtnTitle:{
-      type:String,
-      default:"添加"
+    addBtnTitle: {
+      type: String,
+      default: '添加'
     },
-    addBtnTo:{
-      type:String,
-      default:"#"
+    addBtnTo: {
+      type: String,
+      default: '#'
     },
     currentIndex: {
       type: Number,
@@ -258,7 +258,12 @@ export default {
       if (e.target.value === '') this.insideTableData = this.value
     },
     handleSearch () {
-      this.insideTableData = this.value.filter(item => item[this.searchKey].indexOf(this.searchValue) > -1)
+      debugger
+      if (this.onSearch) {
+        this.onSearch(this.searchKey, this.searchValue)
+      } else {
+        this.insideTableData = this.value.filter(item => item[this.searchKey].indexOf(this.searchValue) > -1)
+      }
     },
     handleTableData () {
       this.insideTableData = this.value.map((item, index) => {
@@ -303,14 +308,17 @@ export default {
     onExpand (row, status) {
       this.$emit('on-expand', row, status)
     },
-    onPageChange(index){
-      this.$emit('on-page-change',index)
+    onPageChange (index) {
+      this.$emit('on-page-change', index)
     },
-    onPageSizeChange(pageSize){
-      this.$emit('on-page-size-change',pageSize)
+    onPageSizeChange (pageSize) {
+      this.$emit('on-page-size-change', pageSize)
     },
-    onAdd(){
+    onAdd () {
       this.$emit('on-add')
+    },
+    onSearch (key, value) {
+      this.$emit('on-search', key, value)
     }
   },
   watch: {
@@ -320,7 +328,7 @@ export default {
     },
     value (val) {
       this.handleTableData()
-      this.handleSearch()
+      // this.handleSearch()
     }
   },
   mounted () {

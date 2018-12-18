@@ -9,7 +9,8 @@
       @on-add="handleAdd"
       @on-change="handlePageChange"
       @on-page-size-change='handlePageSizeChange'
-      @on-delete="handleDelete"/>
+      @on-delete="handleDelete"
+      @on-search="handleSearch"/>
     </Card>
     <Modal :title="modalTitle" :mask-closable="false" v-model="createModalShow" width="50">
            <Form ref="appInfo" :model="appInfo" :rules="appInfoRuleValidate" :label-width="80">
@@ -58,7 +59,7 @@ export default {
     return {
       columns: [
         {title: '应用名称', key: 'Name', sortable: true, isSearchable: true},
-        {title: '应用描述', key: 'Desc', isSearchable: true},
+        {title: '应用描述', key: 'Desc'},
         {title: '状态',
           key: 'Status',
           render: (h, params) => {
@@ -197,10 +198,14 @@ export default {
     init () {
       this.loadData()
     },
-    loadData () {
+    loadData (key, value) {
       var query = {
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
+      }
+      debugger
+      if (key === 'Name') {
+        query.name = value
       }
       getList(query).then(res => {
         if (res.success) {
@@ -214,6 +219,9 @@ export default {
           }
         }
       })
+    },
+    handleSearch (key, value) {
+      this.loadData(key, value)
     },
     handleAdd () {
       this.setApp(null)
