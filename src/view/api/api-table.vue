@@ -422,7 +422,7 @@ export default {
         TargetUrl: '',
         CallName: '',
         CallMethod: 0,
-        Weight: '',
+        Weight: 0,
         Timeout: 0,
         Status: 0
       },
@@ -568,7 +568,7 @@ export default {
           TargetUrl: '',
           CallName: '',
           CallMethod: 0,
-          Weight: '',
+          Weight: 0,
           Timeout: 0,
           Status: 0
         }

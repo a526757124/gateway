@@ -203,7 +203,6 @@ export default {
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
       }
-      debugger
       if (key === 'Name') {
         query.name = value
       }
