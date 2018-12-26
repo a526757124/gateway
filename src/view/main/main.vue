@@ -36,6 +36,7 @@
   </Layout>
 </template>
 <script>
+
 import SideMenu from './components/side-menu'
 import HeaderBar from './components/header-bar'
 import TagsNav from './components/tags-nav'
